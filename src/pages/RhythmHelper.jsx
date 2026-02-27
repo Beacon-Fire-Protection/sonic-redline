@@ -1,46 +1,147 @@
-import { Music } from "lucide-react";
+import { useState } from "react";
+import { base44 } from "@/api/base44Client";
+import { Music, Loader2 } from "lucide-react";
 
-const METERS = [
-  { name: "Iambic", pattern: "da-DUM da-DUM da-DUM da-DUM", color: "#C9A84C", bg: "from-amber-950/70 to-yellow-900/50", border: "border-amber-700/60", description: "Unstressed then stressed. The heartbeat of English poetry. Shakespeare's sonnets." },
-  { name: "Trochaic", pattern: "DUM-da DUM-da DUM-da DUM-da", color: "#9B7ADE", bg: "from-purple-950/70 to-violet-900/50", border: "border-purple-700/60", description: "Stressed then unstressed. Falling, insistent, driving. Blake's Tiger." },
-  { name: "Anapestic", pattern: "da-da-DUM da-da-DUM da-da-DUM", color: "#5FAAD9", bg: "from-blue-950/70 to-cyan-900/50", border: "border-blue-700/60", description: "Two unstressed then stressed. Galloping, light, swift. Byron." },
-  { name: "Dactylic", pattern: "DUM-da-da DUM-da-da DUM-da-da", color: "#5DB88A", bg: "from-emerald-950/70 to-green-900/50", border: "border-emerald-700/60", description: "Stressed then two unstressed. Tumbling, classical, expansive. Homer (translated)." },
-  { name: "Spondaic", pattern: "DUM-DUM DUM-DUM DUM-DUM", color: "#D9705F", bg: "from-red-950/70 to-rose-900/50", border: "border-red-700/60", description: "Both syllables equally stressed. Heavy, slow, emphatic. Used sparingly for weight." },
-];
+const PENTAMETER_STYLES = {
+  iambic:    { color: "#C9A84C", bg: "from-amber-950/70 to-yellow-900/50",   border: "border-amber-700/60"   },
+  trochaic:  { color: "#9B7ADE", bg: "from-purple-950/70 to-violet-900/50",  border: "border-purple-700/60"  },
+  anapestic: { color: "#5FAAD9", bg: "from-blue-950/70 to-cyan-900/50",      border: "border-blue-700/60"    },
+  dactylic:  { color: "#5DB88A", bg: "from-emerald-950/70 to-green-900/50",  border: "border-emerald-700/60" },
+  spondaic:  { color: "#D9705F", bg: "from-red-950/70 to-rose-900/50",       border: "border-red-700/60"     },
+};
+
+const STRESS_COLORS = {
+  stressed:   "text-white font-bold",
+  unstressed: "text-white/40 font-normal",
+};
 
 export default function RhythmHelper() {
+  const [sentence, setSentence] = useState("");
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const analyze = async () => {
+    if (!sentence.trim()) return;
+    setLoading(true);
+    setResult(null);
+
+    const res = await base44.integrations.Core.InvokeLLM({
+      prompt: `Analyze the meter of this line of poetry or sentence: "${sentence}"\n\nBreak it into syllables, mark each syllable as stressed or unstressed, identify the dominant metrical foot (iambic, trochaic, anapestic, dactylic, or spondaic), and give a confidence score 0-100.`,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          meter: { type: "string", description: "one of: iambic, trochaic, anapestic, dactylic, spondaic" },
+          confidence: { type: "number", description: "0-100" },
+          syllables: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                syllable: { type: "string" },
+                stress: { type: "string", description: "stressed or unstressed" },
+              },
+            },
+          },
+          explanation: { type: "string" },
+        },
+      },
+    });
+
+    setResult(res);
+    setLoading(false);
+  };
+
+  const style = result ? (PENTAMETER_STYLES[result.meter] || PENTAMETER_STYLES.iambic) : null;
+
   return (
     <div className="min-h-screen bg-[#0D0D0F] text-white px-4 py-12">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-3 mb-4 select-none">
           <Music className="w-5 h-5 text-purple-400/70" />
-          <h1 className="text-2xl font-light text-white">Rhythm Reference</h1>
+          <h1 className="text-2xl font-light text-white">Rhythm Analyzer</h1>
         </div>
         <p className="text-white/30 text-sm mb-10 leading-relaxed">
-          Static reference for metrical foot patterns. Use when identifying rhythm in your lines.
+          Paste a line or sentence to detect its metrical pattern and syllable stresses.
         </p>
 
-        <div className="space-y-4">
-          {METERS.map((m) => (
-            <div key={m.name} className={`rounded-2xl border ${m.border} bg-gradient-to-br ${m.bg} p-5`}>
-              <div className="flex items-start justify-between gap-4 mb-3">
-                <div>
-                  <div className="text-sm font-semibold mb-1" style={{ color: m.color }}>{m.name}</div>
-                  <div className="font-mono text-white/80 text-base tracking-wide">{m.pattern}</div>
-                </div>
-              </div>
-              <p className="text-white/40 text-xs leading-relaxed">{m.description}</p>
-            </div>
-          ))}
+        {/* Input */}
+        <div className="flex gap-3 mb-8">
+          <input
+            value={sentence}
+            onChange={e => setSentence(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && analyze()}
+            placeholder="Shall I compare thee to a summer's day?"
+            className="flex-1 bg-[#141417] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-white/25 transition-colors text-sm"
+          />
+          <button
+            onClick={analyze}
+            disabled={loading || !sentence.trim()}
+            className="px-5 py-3 rounded-xl text-sm font-medium select-none transition-all disabled:opacity-30"
+            style={{ background: "linear-gradient(135deg, #7c3aed, #6d28d9)", color: "#fff" }}
+          >
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Scan"}
+          </button>
         </div>
 
-        <div className="mt-8 p-4 rounded-xl bg-[#141417] border border-white/8">
-          <div className="text-xs uppercase tracking-widest text-white/25 mb-2 select-none">Reading the patterns</div>
-          <p className="text-white/35 text-xs leading-relaxed">
-            <strong className="text-white/50">DUM</strong> = stressed syllable &nbsp;·&nbsp;
-            <strong className="text-white/50">da</strong> = unstressed syllable.<br />
-            Most English poems mix meters. Identify the dominant pattern, then note where the poem breaks from it and why.
-          </p>
+        {/* Result */}
+        {result && style && (
+          <div className={`rounded-2xl border ${style.border} bg-gradient-to-br ${style.bg} p-6 space-y-6`}>
+            {/* Meter + confidence */}
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xs uppercase tracking-widest text-white/30 mb-1 select-none">Meter</div>
+                <div className="text-2xl font-light capitalize" style={{ color: style.color }}>{result.meter}</div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs uppercase tracking-widest text-white/30 mb-1 select-none">Confidence</div>
+                <div className="text-2xl font-light text-white">{result.confidence}%</div>
+              </div>
+            </div>
+
+            {/* Syllable stress breakdown */}
+            {result.syllables?.length > 0 && (
+              <div>
+                <div className="text-xs uppercase tracking-widest text-white/30 mb-3 select-none">Syllable Breakdown</div>
+                <div className="flex flex-wrap gap-2">
+                  {result.syllables.map((s, i) => (
+                    <div key={i} className="flex flex-col items-center gap-1">
+                      <span className={`text-sm font-mono ${STRESS_COLORS[s.stress] || "text-white/50"}`}>
+                        {s.stress === "stressed" ? s.syllable.toUpperCase() : s.syllable}
+                      </span>
+                      <span className={`w-1.5 h-1.5 rounded-full ${s.stress === "stressed" ? "bg-white" : "bg-white/20"}`} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Explanation */}
+            {result.explanation && (
+              <div>
+                <div className="text-xs uppercase tracking-widest text-white/30 mb-2 select-none">Analysis</div>
+                <p className="text-white/55 text-sm leading-relaxed">{result.explanation}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Reference */}
+        <div className="mt-10 p-4 rounded-xl bg-[#141417] border border-white/8">
+          <div className="text-xs uppercase tracking-widest text-white/25 mb-3 select-none">Quick Reference</div>
+          <div className="space-y-1.5">
+            {[
+              ["Iambic", "da-DUM da-DUM da-DUM da-DUM"],
+              ["Trochaic", "DUM-da DUM-da DUM-da DUM-da"],
+              ["Anapestic", "da-da-DUM da-da-DUM da-da-DUM"],
+              ["Dactylic", "DUM-da-da DUM-da-da DUM-da-da"],
+              ["Spondaic", "DUM-DUM DUM-DUM DUM-DUM"],
+            ].map(([name, pat]) => (
+              <div key={name} className="flex justify-between text-xs">
+                <span className="text-white/35">{name}</span>
+                <span className="text-white/20 font-mono">{pat}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
