@@ -50,6 +50,8 @@
 import Home from './pages/Home';
 import History from './pages/History';
 import Settings from './pages/Settings';
+import Submit from './pages/Submit';
+import RhythmHelper from './pages/RhythmHelper';
 import __Layout from './Layout.jsx';
 
 
@@ -57,6 +59,8 @@ export const PAGES = {
     "Home": Home,
     "History": History,
     "Settings": Settings,
+    "Submit": Submit,
+    "RhythmHelper": RhythmHelper,
 }
 
 export const pagesConfig = {
