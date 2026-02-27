@@ -29,8 +29,8 @@ const PENTAMETERS = {
     repeat: "da-da-DUM da-da-DUM da-da-DUM",
     description: "Two unstressed then stressed — galloping, light, and swift",
     color: "#5FAAD9",
-    bg: "from-blue-950/40 to-cyan-900/20",
-    border: "border-blue-700/40",
+    bg: "from-blue-950/70 to-cyan-900/50",
+    border: "border-blue-700/60",
     example: "And the SOUND of a VOICE that is STILL",
   },
   dactylic: {
