@@ -39,8 +39,8 @@ const PENTAMETERS = {
     repeat: "DUM-da-da DUM-da-da DUM-da-da",
     description: "Stressed then two unstressed — tumbling, classical, expansive",
     color: "#5DB88A",
-    bg: "from-emerald-950/40 to-green-900/20",
-    border: "border-emerald-700/40",
+    bg: "from-emerald-950/70 to-green-900/50",
+    border: "border-emerald-700/60",
     example: "EV-ery-y MORN-ing I WAKE and I TEM-per my",
   },
   spondaic: {
