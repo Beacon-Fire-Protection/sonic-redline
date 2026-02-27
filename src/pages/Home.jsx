@@ -49,8 +49,8 @@ const PENTAMETERS = {
     repeat: "DUM-DUM DUM-DUM DUM-DUM",
     description: "Both syllables stressed — heavy, slow, emphatic",
     color: "#D9705F",
-    bg: "from-red-950/40 to-rose-900/20",
-    border: "border-red-700/40",
+    bg: "from-red-950/70 to-rose-900/50",
+    border: "border-red-700/60",
     example: "STONE WALL COLD NIGHT",
   },
 };
