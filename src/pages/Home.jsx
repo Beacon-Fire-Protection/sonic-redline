@@ -9,8 +9,8 @@ const PENTAMETERS = {
     repeat: "da-DUM da-DUM da-DUM da-DUM da-DUM",
     description: "Unstressed followed by stressed — the heartbeat of English poetry",
     color: "#C9A84C",
-    bg: "from-amber-950/40 to-yellow-900/20",
-    border: "border-amber-700/40",
+    bg: "from-amber-950/70 to-yellow-900/50",
+    border: "border-amber-700/60",
     example: "Shall I com-PARE thee TO a SUM-mer's DAY",
   },
   trochaic: {
