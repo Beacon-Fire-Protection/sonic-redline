@@ -19,8 +19,8 @@ const PENTAMETERS = {
     repeat: "DUM-da DUM-da DUM-da DUM-da DUM-da",
     description: "Stressed followed by unstressed — falling, insistent, driving",
     color: "#9B7ADE",
-    bg: "from-purple-950/40 to-violet-900/20",
-    border: "border-purple-700/40",
+    bg: "from-purple-950/70 to-violet-900/50",
+    border: "border-purple-700/60",
     example: "TY-ger TY-ger BURN-ing BRIGHT",
   },
   anapestic: {
