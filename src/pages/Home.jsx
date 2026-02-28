@@ -1,13 +1,10 @@
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
-const LOGO =
-  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
-
 export default function Home() {
   return (
     <div
-      className="h-dvh overflow-hidden text-foreground flex items-center justify-center px-6"
+      className="min-h-dvh text-foreground px-6 pt-20 pb-10"
       style={{
         background:
           "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)",
@@ -41,24 +38,24 @@ export default function Home() {
         }
       `}</style>
 
-      <div className="max-w-sm w-full text-center">
-        <p className="home-tagline text-sm tracking-[0.2em] uppercase mb-12">
+      <div className="max-w-sm w-full mx-auto text-center">
+        <p className="home-tagline text-sm tracking-[0.2em] uppercase mb-8">
           Structure. Sound. Truth.
         </p>
 
-        <div className="home-button-container p-6 mb-4">
+        <div className="home-button-container p-4 mb-4">
           <Link
             to={createPageUrl("Submit")}
-            className="home-primary-button block w-full py-4 text-sm font-bold tracking-[0.15em] uppercase"
+            className="home-primary-button block w-full py-3 text-sm font-bold tracking-[0.15em] uppercase"
           >
             Analyze a Poem
           </Link>
         </div>
 
-        <div className="home-button-container p-6">
+        <div className="home-button-container p-4">
           <Link
             to={createPageUrl("Collection")}
-            className="home-secondary-button block w-full py-4 text-sm font-bold tracking-[0.15em] uppercase border"
+            className="home-secondary-button block w-full py-3 text-sm font-bold tracking-[0.15em] uppercase border"
           >
             Saved Poems
           </Link>
