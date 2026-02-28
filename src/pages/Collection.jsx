@@ -60,15 +60,6 @@ export default function Collection() {
 
   return (
     <div className="min-h-screen bg-[#1A1A1A] text-white">
-      <div className="px-4 pt-10 pb-5 border-b border-white/8">
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-center gap-2 mb-1">
-            <img src={LOGO} alt="" className="w-5 h-5 object-contain opacity-60" />
-            <span className="text-xs tracking-[0.2em] uppercase text-white/30">Sonic Redline</span>
-          </div>
-          <h1 className="text-2xl font-bold text-white">Saved Poems</h1>
-        </div>
-      </div>
 
       <div className="max-w-2xl mx-auto px-4 py-5">
         {/* Search + sort */}
