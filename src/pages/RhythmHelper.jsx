@@ -68,7 +68,7 @@ export default function RhythmHelper() {
             onChange={e => setSentence(e.target.value)}
             onKeyDown={e => e.key === "Enter" && analyze()}
             placeholder="Shall I compare thee to a summer's day?"
-            className="flex-1 bg-[#141417] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-white/25 transition-colors text-sm"
+            className="flex-1 bg-[#111] border border-white/10 px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-[#FF2D2D]/50 transition-colors text-sm"
           />
           <button
             onClick={analyze}
