@@ -128,7 +128,7 @@ export default function Submit() {
                 value={version}
                 onChange={e => setVersion(e.target.value)}
                 placeholder="1"
-                className="w-full bg-[#111] border border-white/10 px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-[#FF2D2D]/50 transition-colors text-sm"
+                className="w-full bg-[#1A1A1A] border border-white/10 px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-[#FF2D2D]/50 transition-colors text-sm"
               />
             </div>
           </div>
