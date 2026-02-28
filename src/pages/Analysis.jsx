@@ -6,18 +6,19 @@ import { Loader2, Download, RefreshCw, Plus, Bookmark } from "lucide-react";
 
 const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
 
+// Unicorn LEGO flag colors - vibrant and cohesive!
 const FLAG = {
-  RED:    { dot: "bg-[#FF2D2D]", text: "text-[#FF2D2D]", border: "border-[#FF2D2D]/25", bg: "bg-[#FF2D2D]/8" },
+  RED:    { dot: "bg-[#EC4899]", text: "text-[#EC4899]", border: "border-[#EC4899]/25", bg: "bg-[#EC4899]/8" },
   YELLOW: { dot: "bg-[#FBBF24]", text: "text-[#FBBF24]", border: "border-[#FBBF24]/25", bg: "bg-[#FBBF24]/8" },
-  GREEN:  { dot: "bg-[#4ADE80]", text: "text-[#4ADE80]", border: "border-[#4ADE80]/25", bg: "bg-[#4ADE80]/8" },
+  GREEN:  { dot: "bg-[#10B981]", text: "text-[#10B981]", border: "border-[#10B981]/25", bg: "bg-[#10B981]/8" },
 };
 
 const TABS = ["Poem", "Full Analysis", "Structure", "Comparison"];
 
 function ScoreBadge({ score }) {
-  const bg = score >= 7 ? "#4ADE80" : score >= 5 ? "#FBBF24" : "#FF2D2D";
+  const bg = score >= 7 ? "#10B981" : score >= 5 ? "#FBBF24" : "#EC4899";
   return (
-    <div className="w-12 h-12 flex items-center justify-center font-bold text-lg text-black flex-shrink-0" style={{ background: bg }}>
+    <div className="w-12 h-12 flex items-center justify-center font-bold text-lg flex-shrink-0" style={{ background: bg, color: "#000" }}>
       {score}
     </div>
   );
@@ -27,18 +28,18 @@ function ExpandableLine({ line }) {
   const [open, setOpen] = useState(false);
   const s = FLAG[line.flag] || FLAG.GREEN;
   return (
-    <div className={`border-b border-white/5 last:border-0 ${open ? s.bg : ""} transition-colors`}>
+    <div className={`border-b last:border-0 transition-colors ${open ? s.bg : ""}`} style={{ borderColor: "hsl(var(--border))" }}>
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center gap-3 px-4 py-3 text-left"
       >
-        <span className="text-white/25 text-xs font-mono w-5 flex-shrink-0">{line.number}</span>
+        <span className="text-xs font-mono w-5 flex-shrink-0" style={{ color: "hsl(var(--muted-foreground))" }}>{line.number}</span>
         <span className={`w-2 h-2 flex-shrink-0 ${s.dot}`} />
-        <span className="text-white/70 text-sm font-mono flex-1 leading-relaxed">{line.text}</span>
+        <span className="text-sm font-mono flex-1 leading-relaxed" style={{ color: "hsl(var(--foreground) / 0.7)" }}>{line.text}</span>
       </button>
       {open && (
         <div className={`px-4 pb-4 ml-8 border-l-2 ${s.border}`}>
-          <p className="text-white/55 text-sm leading-relaxed">{line.analysis}</p>
+          <p className="text-sm leading-relaxed" style={{ color: "hsl(var(--foreground) / 0.65)" }}>{line.analysis}</p>
         </div>
       )}
     </div>
@@ -122,8 +123,8 @@ export default function Analysis() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
-      <Loader2 className="w-6 h-6 text-white/30 animate-spin" />
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+      <Loader2 className="w-6 h-6 animate-spin" style={{ color: "hsl(var(--muted-foreground))" }} />
     </div>
   );
 
@@ -131,14 +132,75 @@ export default function Analysis() {
   const visibleTabs = record.is_revision ? TABS : TABS.filter(t => t !== "Comparison");
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col">
+    <div className="min-h-screen text-foreground flex flex-col" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+      <style>{`
+        .analysis-header {
+          border-color: hsl(var(--border));
+          background-color: hsl(var(--background) / 0.5);
+        }
+        .analysis-flag-item {
+          color: hsl(var(--muted-foreground));
+        }
+        .analysis-tab {
+          border-color: hsl(var(--border));
+        }
+        .analysis-tab-active {
+          border-color: hsl(var(--primary));
+          color: hsl(var(--foreground));
+        }
+        .analysis-tab-inactive {
+          color: hsl(var(--muted-foreground));
+          border-color: transparent;
+        }
+        .analysis-tab-inactive:hover {
+          color: hsl(var(--foreground) / 0.7);
+        }
+        .analysis-card {
+          border-color: hsl(var(--border));
+          background-color: hsl(var(--card));
+        }
+        .analysis-label {
+          color: hsl(var(--muted-foreground));
+        }
+        .analysis-content {
+          color: hsl(var(--foreground) / 0.65);
+        }
+        .analysis-footer {
+          background-color: hsl(var(--background));
+          border-color: hsl(var(--border));
+        }
+        .analysis-btn-primary {
+          background-color: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          transition: all 0.3s ease;
+        }
+        .analysis-btn-primary:hover:not(:disabled) {
+          filter: brightness(1.1);
+          box-shadow: 0 0 16px hsl(var(--primary) / 0.4);
+        }
+        .analysis-btn-secondary {
+          border-color: hsl(var(--border));
+          color: hsl(var(--muted-foreground));
+          transition: all 0.3s ease;
+        }
+        .analysis-btn-secondary:hover {
+          color: hsl(var(--foreground));
+          border-color: hsl(var(--primary) / 0.5);
+          background-color: hsl(var(--primary) / 0.05);
+        }
+        .analysis-comparison-highlight {
+          border-color: hsl(var(--primary) / 0.3);
+          background-color: hsl(var(--primary) / 0.08);
+        }
+      `}</style>
+
       {/* Header */}
-      <div className="px-4 pt-6 pb-5 border-b border-white/8">
+      <div className="px-4 pt-6 pb-5 border-b analysis-header">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-start gap-4">
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-white truncate">{record.title || "Untitled"}</h1>
-              <div className="text-white/35 text-sm mt-0.5">Version {record.version_number}</div>
+              <h1 className="text-2xl font-bold truncate">{record.title || "Untitled"}</h1>
+              <div className="analysis-label text-sm mt-0.5">Version {record.version_number}</div>
             </div>
             <ScoreBadge score={parsedScore} />
           </div>
@@ -146,18 +208,18 @@ export default function Analysis() {
           {/* Flag bar */}
           <div className="flex items-center gap-5 mt-4">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 bg-[#FF2D2D]" />
-              <span className="text-[#FF2D2D] text-sm font-bold">{record.red_count}</span>
+              <span className="w-2.5 h-2.5 bg-[#EC4899]" />
+              <span className="text-sm font-bold" style={{ color: "#EC4899" }}>{record.red_count}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 bg-[#FBBF24]" />
-              <span className="text-[#FBBF24] text-sm font-bold">{record.yellow_count}</span>
+              <span className="text-sm font-bold" style={{ color: "#FBBF24" }}>{record.yellow_count}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 bg-[#4ADE80]" />
-              <span className="text-[#4ADE80] text-sm font-bold">{record.green_count}</span>
+              <span className="w-2.5 h-2.5 bg-[#10B981]" />
+              <span className="text-sm font-bold" style={{ color: "#10B981" }}>{record.green_count}</span>
             </div>
-            <div className="ml-auto text-xs text-white/30 font-mono">
+            <div className="ml-auto text-xs analysis-label font-mono">
               Obj: {analysis.score_objective} · Sub: {analysis.score_subjective} · Cmb: {analysis.score_combined}
             </div>
           </div>
@@ -165,7 +227,7 @@ export default function Analysis() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-white/8 overflow-x-auto">
+      <div className="analysis-tab border-b overflow-x-auto">
         <div className="flex max-w-2xl mx-auto px-4">
           {visibleTabs.map((tab, i) => {
             const realIdx = TABS.indexOf(tab);
@@ -175,8 +237,8 @@ export default function Analysis() {
                 onClick={() => setActiveTab(realIdx)}
                 className={`py-3 px-4 text-xs font-bold tracking-[0.15em] uppercase whitespace-nowrap border-b-2 transition-colors ${
                   activeTab === realIdx
-                    ? "border-[#FF2D2D] text-white"
-                    : "border-transparent text-white/35 hover:text-white/60"
+                    ? "analysis-tab-active"
+                    : "analysis-tab-inactive"
                 }`}
               >
                 {tab}
@@ -192,7 +254,7 @@ export default function Analysis() {
 
           {/* Tab 0: Poem */}
           {activeTab === 0 && (
-            <div className="border border-white/8 overflow-hidden">
+            <div className="analysis-card border overflow-hidden">
               {analysis.lines?.map((line) => (
                 <ExpandableLine key={line.number} line={line} />
               ))}
@@ -205,14 +267,14 @@ export default function Analysis() {
               {analysis.lines?.map((line) => {
                 const s = FLAG[line.flag] || FLAG.GREEN;
                 return (
-                  <div key={line.number} className={`border ${s.border} p-4`}>
+                  <div key={line.number} className={`analysis-card border p-4`}>
                     <div className="flex items-center gap-3 mb-3">
-                      <span className="text-white/20 text-xs font-mono">{line.number}</span>
+                      <span className="text-xs font-mono analysis-label">{line.number}</span>
                       <span className={`w-2 h-2 ${s.dot}`} />
                       <span className={`text-xs font-bold tracking-[0.15em] uppercase ${s.text}`}>{line.flag}</span>
                     </div>
-                    <div className="text-white/45 text-sm font-mono mb-3 italic">"{line.text}"</div>
-                    <p className="text-white/65 text-sm leading-relaxed">{line.analysis}</p>
+                    <div className="text-sm font-mono mb-3 italic analysis-content">"{line.text}"</div>
+                    <p className="text-sm leading-relaxed analysis-content">{line.analysis}</p>
                   </div>
                 );
               })}
@@ -223,15 +285,15 @@ export default function Analysis() {
           {activeTab === 2 && (
             <div className="space-y-6">
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-white/30 mb-3">Structural Movements</div>
-                <div className="border border-white/8 p-5">
-                  <p className="text-white/65 text-sm leading-relaxed whitespace-pre-wrap">{analysis.structural_movements}</p>
+                <div className="text-xs uppercase tracking-[0.2em] analysis-label mb-3">Structural Movements</div>
+                <div className="analysis-card border p-5">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap analysis-content">{analysis.structural_movements}</p>
                 </div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-[0.2em] text-white/30 mb-3">Revision Targets</div>
-                <div className="border border-white/8 p-5">
-                  <p className="text-white/65 text-sm leading-relaxed whitespace-pre-wrap">{analysis.remaining_targets}</p>
+                <div className="text-xs uppercase tracking-[0.2em] analysis-label mb-3">Revision Targets</div>
+                <div className="analysis-card border p-5">
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap analysis-content">{analysis.remaining_targets}</p>
                 </div>
               </div>
             </div>
@@ -242,17 +304,17 @@ export default function Analysis() {
             <div className="space-y-6">
               {analysis.what_changed && (
                 <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-white/30 mb-3">What Changed</div>
-                  <div className="border border-[#FF2D2D]/20 bg-[#FF2D2D]/5 p-5">
-                    <p className="text-white/65 text-sm leading-relaxed whitespace-pre-wrap">{analysis.what_changed}</p>
+                  <div className="text-xs uppercase tracking-[0.2em] analysis-label mb-3">What Changed</div>
+                  <div className="analysis-comparison-highlight border p-5">
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap analysis-content">{analysis.what_changed}</p>
                   </div>
                 </div>
               )}
               {analysis.comparison_scorecard && (
                 <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-white/30 mb-3">Comparison Scorecard</div>
-                  <div className="border border-white/8 p-5">
-                    <p className="text-white/65 text-sm leading-relaxed whitespace-pre-wrap">{analysis.comparison_scorecard}</p>
+                  <div className="text-xs uppercase tracking-[0.2em] analysis-label mb-3">Comparison Scorecard</div>
+                  <div className="analysis-card border p-5">
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap analysis-content">{analysis.comparison_scorecard}</p>
                   </div>
                 </div>
               )}
@@ -262,12 +324,11 @@ export default function Analysis() {
       </div>
 
       {/* Bottom actions */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#0D0D0D] border-t border-white/8 p-4 pb-safe">
+      <div className="analysis-footer fixed bottom-0 left-0 right-0 border-t p-4 pb-safe">
         <div className="max-w-2xl mx-auto grid grid-cols-4 gap-3">
           <button
             onClick={handleRevision}
-            className="py-3 text-xs font-bold tracking-[0.1em] uppercase text-white flex items-center justify-center gap-2"
-            style={{ background: "#FF2D2D" }}
+            className="analysis-btn-primary py-3 text-xs font-bold tracking-[0.1em] uppercase flex items-center justify-center gap-2 rounded-lg"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Revision
@@ -275,22 +336,21 @@ export default function Analysis() {
           <button
             onClick={handleSave}
             disabled={savingPoem}
-            className="py-3 text-xs font-bold tracking-[0.1em] uppercase text-white flex items-center justify-center gap-2 disabled:opacity-50"
-            style={{ background: "#1A6FFF" }}
+            className="analysis-btn-primary py-3 text-xs font-bold tracking-[0.1em] uppercase flex items-center justify-center gap-2 rounded-lg disabled:opacity-50"
           >
             {savingPoem ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bookmark className="w-3.5 h-3.5" />}
             Save
           </button>
           <button
             onClick={handleExport}
-            className="py-3 text-xs font-bold tracking-[0.1em] uppercase text-white/60 hover:text-white border border-white/15 hover:border-white/30 flex items-center justify-center gap-2 transition-colors"
+            className="analysis-btn-secondary py-3 text-xs font-bold tracking-[0.1em] uppercase border flex items-center justify-center gap-2 rounded-lg"
           >
             <Download className="w-3.5 h-3.5" />
             Export
           </button>
           <button
             onClick={() => navigate(createPageUrl("Submit"))}
-            className="py-3 text-xs font-bold tracking-[0.1em] uppercase text-white/40 hover:text-white/70 flex items-center justify-center gap-2 transition-colors"
+            className="analysis-btn-secondary py-3 text-xs font-bold tracking-[0.1em] uppercase border flex items-center justify-center gap-2 rounded-lg"
           >
             <Plus className="w-3.5 h-3.5" />
             New
