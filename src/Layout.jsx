@@ -59,7 +59,7 @@ export default function Layout({ children, currentPageName }) {
 
       {showTabs && (
         <nav
-          className="fixed bottom-0 left-0 right-0 bg-[#111] border-t border-white/8 flex select-none z-50"
+          className="fixed bottom-0 left-0 right-0 bg-[#0D0D0D] border-t border-white/8 flex select-none z-50"
           style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         >
           {tabs.map(({ name, label, icon: Icon }) => {
