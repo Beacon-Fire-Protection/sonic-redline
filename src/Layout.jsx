@@ -98,7 +98,7 @@ export default function Layout({ children, currentPageName }) {
               <Link
                 key={name}
                 to={createPageUrl(name)}
-                className="flex-1 flex flex-col items-center justify-center pt-3 pb-2.5 gap-1 transition-all active:opacity-60 hover:opacity-80"
+                className="flex-1 flex flex-col items-center justify-center pt-4 pb-3 gap-1 transition-all active:opacity-60 hover:opacity-80"
                 style={{
                   background: active ? `${ACTIVE_COLOR}15` : "transparent",
                   borderRadius: active ? "12px 12px 0 0" : "0"
