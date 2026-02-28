@@ -5,24 +5,51 @@ const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col items-center justify-center px-6 py-16">
-      <div className="max-w-sm w-full text-center">
-        <p className="text-white/40 text-sm tracking-[0.2em] uppercase mb-12">Structure. Sound. Truth.</p>
+    <div className="min-h-screen text-foreground flex flex-col items-center justify-center px-6 py-16" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+      <style>{`
+        .home-tagline {
+          color: hsl(var(--muted-foreground));
+        }
+        .home-button-container {
+          background-color: hsl(var(--card));
+        }
+        .home-primary-button {
+          background-color: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          transition: all 0.3s ease;
+        }
+        .home-primary-button:hover {
+          filter: brightness(1.1);
+          box-shadow: 0 0 24px hsl(var(--primary) / 0.4);
+        }
+        .home-secondary-button {
+          border-color: hsl(var(--border));
+          color: hsl(var(--muted-foreground));
+          transition: all 0.3s ease;
+        }
+        .home-secondary-button:hover {
+          color: hsl(var(--foreground));
+          border-color: hsl(var(--primary) / 0.5);
+          background-color: hsl(var(--primary) / 0.05);
+        }
+      `}</style>
 
-        <div className="bg-[#1A1A1A] p-6 mb-4">
+      <div className="max-w-sm w-full text-center">
+        <p className="home-tagline text-sm tracking-[0.2em] uppercase mb-12">Structure. Sound. Truth.</p>
+
+        <div className="home-button-container p-6 mb-4">
           <Link
             to={createPageUrl("Submit")}
-            className="block w-full py-4 text-sm font-bold tracking-[0.15em] uppercase transition-all text-white"
-            style={{ background: "#FF2D2D" }}
+            className="home-primary-button block w-full py-4 text-sm font-bold tracking-[0.15em] uppercase"
           >
             Analyze a Poem
           </Link>
         </div>
 
-        <div className="bg-[#1A1A1A] p-6">
+        <div className="home-button-container p-6">
           <Link
             to={createPageUrl("Collection")}
-            className="block w-full py-4 text-sm font-bold tracking-[0.15em] uppercase transition-all text-white/60 hover:text-white border border-white/15 hover:border-white/30"
+            className="home-secondary-button block w-full py-4 text-sm font-bold tracking-[0.15em] uppercase border"
           >
             Saved Poems
           </Link>
