@@ -47,26 +47,28 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import Home from './pages/Home';
-import History from './pages/History';
-import Settings from './pages/Settings';
-import Submit from './pages/Submit';
-import RhythmHelper from './pages/RhythmHelper';
 import Analysis from './pages/Analysis';
 import Collection from './pages/Collection';
 import Dashboard from './pages/Dashboard';
+import History from './pages/History';
+import Home from './pages/Home';
+import RhythmHelper from './pages/RhythmHelper';
+import Settings from './pages/Settings';
+import Submit from './pages/Submit';
+import Profile from './pages/Profile';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Home": Home,
-    "History": History,
-    "Settings": Settings,
-    "Submit": Submit,
-    "RhythmHelper": RhythmHelper,
     "Analysis": Analysis,
     "Collection": Collection,
     "Dashboard": Dashboard,
+    "History": History,
+    "Home": Home,
+    "RhythmHelper": RhythmHelper,
+    "Settings": Settings,
+    "Submit": Submit,
+    "Profile": Profile,
 }
 
 export const pagesConfig = {

@@ -1,11 +1,15 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 html, body {
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
-  background: #0D0D0F;
+  background: #1A1A1A;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 button, a, [role="button"] {

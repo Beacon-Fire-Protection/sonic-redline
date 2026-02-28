@@ -2,14 +2,27 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { BookOpen, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronRight, Loader2, Search, RefreshCw } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+
+const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
+
+function ScoreBadge({ score }) {
+  const bg = score >= 7 ? "#4ADE80" : score >= 5 ? "#FBBF24" : "#FF2D2D";
+  return (
+    <div className="w-9 h-9 flex items-center justify-center font-bold text-sm text-black flex-shrink-0" style={{ background: bg }}>
+      {score}
+    </div>
+  );
+}
 
 export default function Collection() {
   const navigate = useNavigate();
   const [poems, setPoems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedTitle, setExpandedTitle] = useState(null);
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("date");
 
   useEffect(() => {
     base44.entities.PoemAnalysis.list("-created_date", 200).then(data => {
@@ -18,7 +31,6 @@ export default function Collection() {
     });
   }, []);
 
-  // Group by title
   const grouped = poems.reduce((acc, p) => {
     const key = p.title || "Untitled";
     if (!acc[key]) acc[key] = [];
@@ -26,102 +38,150 @@ export default function Collection() {
     return acc;
   }, {});
 
-  const scoreColor = (s) => s >= 8 ? "#5DB88A" : s >= 5 ? "#C9A84C" : "#D9705F";
+  let entries = Object.entries(grouped).filter(([title]) =>
+    title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (sort === "score") {
+    entries.sort((a, b) => {
+      const sa = Math.max(...a[1].map(v => v.poem_score || 0));
+      const sb = Math.max(...b[1].map(v => v.poem_score || 0));
+      return sb - sa;
+    });
+  } else if (sort === "title") {
+    entries.sort((a, b) => a[0].localeCompare(b[0]));
+  }
 
   if (loading) return (
-    <div className="min-h-screen bg-[#0D0D0F] flex items-center justify-center">
+    <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center">
       <Loader2 className="w-6 h-6 text-white/30 animate-spin" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#0D0D0F] text-white px-4 py-12">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center gap-3 mb-10">
-          <BookOpen className="w-5 h-5 text-amber-400/70" />
-          <h1 className="text-2xl font-light text-white">My Collection</h1>
+    <div className="min-h-screen bg-[#1A1A1A] text-white">
+      <div className="px-4 pt-10 pb-5 border-b border-white/8">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center gap-2 mb-1">
+            <img src={LOGO} alt="" className="w-5 h-5 object-contain opacity-60" />
+            <span className="text-xs tracking-[0.2em] uppercase text-white/30">Sonic Redline</span>
+          </div>
+          <h1 className="text-2xl font-bold text-white">Saved Poems</h1>
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto px-4 py-5">
+        {/* Search + sort */}
+        <div className="flex gap-3 mb-5">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search poems…"
+              className="w-full bg-[#111] border border-white/10 pl-9 pr-4 py-2.5 text-white placeholder-white/20 focus:outline-none focus:border-white/25 text-sm"
+            />
+          </div>
+          <select
+            value={sort}
+            onChange={e => setSort(e.target.value)}
+            className="bg-[#111] border border-white/10 px-3 py-2.5 text-white/50 text-xs uppercase tracking-widest focus:outline-none"
+          >
+            <option value="date">Date</option>
+            <option value="title">Title</option>
+            <option value="score">Score</option>
+          </select>
         </div>
 
-        {Object.keys(grouped).length === 0 ? (
+        {entries.length === 0 ? (
           <div className="text-center py-24 text-white/20">
-            <BookOpen className="w-10 h-10 mx-auto mb-4 opacity-30" />
-            <p className="text-sm">No poems analyzed yet.</p>
+            <p className="text-sm">No saved poems yet.</p>
+            <button
+              onClick={() => navigate(createPageUrl("Submit"))}
+              className="mt-4 text-xs text-[#FF2D2D] uppercase tracking-widest"
+            >
+              Analyze your first poem →
+            </button>
           </div>
         ) : (
-          <div className="space-y-4">
-            {Object.entries(grouped).map(([title, versions]) => {
+          <div className="space-y-3">
+            {entries.map(([title, versions]) => {
               const sorted = [...versions].sort((a, b) => a.version_number - b.version_number);
               const latest = sorted[sorted.length - 1];
-              const chartData = sorted.map(v => ({ version: `v${v.version_number}`, score: v.poem_score }));
+              const chartData = sorted.map(v => ({ v: `v${v.version_number}`, score: v.poem_score }));
               const isExpanded = expandedTitle === title;
 
               return (
-                <div key={title} className="rounded-2xl border border-white/8 bg-[#141417] overflow-hidden">
-                  {/* Header row */}
+                <div key={title} className="border border-white/8 overflow-hidden">
                   <button
                     onClick={() => setExpandedTitle(isExpanded ? null : title)}
-                    className="w-full flex items-center justify-between px-5 py-4 hover:bg-white/5 transition-colors select-none"
+                    className="w-full flex items-center justify-between px-4 py-4 hover:bg-white/3 transition-colors"
                   >
-                    <div className="text-left">
-                      <div className="text-white font-medium">{title}</div>
+                    <div className="text-left flex-1 min-w-0 pr-4">
+                      <div className="text-white font-bold truncate">{title}</div>
                       <div className="text-white/30 text-xs mt-0.5">
-                        {versions.length} version{versions.length !== 1 ? "s" : ""} · Latest v{latest.version_number}
+                        {versions.length} version{versions.length !== 1 ? "s" : ""} · v{latest.version_number}
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-lg font-light" style={{ color: scoreColor(latest.poem_score) }}>
-                        {latest.poem_score}/10
-                      </span>
+                      <ScoreBadge score={latest.poem_score} />
                       <ChevronRight className={`w-4 h-4 text-white/25 transition-transform ${isExpanded ? "rotate-90" : ""}`} />
                     </div>
                   </button>
 
                   {isExpanded && (
-                    <div className="px-5 pb-5 border-t border-white/5">
-                      {/* Score timeline */}
+                    <div className="border-t border-white/5 px-4 pb-4">
                       {chartData.length > 1 && (
                         <div className="mt-4 mb-4">
-                          <div className="text-xs uppercase tracking-widest text-white/20 mb-3 select-none">Score Timeline</div>
-                          <ResponsiveContainer width="100%" height={80}>
+                          <div className="text-xs uppercase tracking-widest text-white/20 mb-2">Score Timeline</div>
+                          <ResponsiveContainer width="100%" height={70}>
                             <LineChart data={chartData}>
-                              <XAxis dataKey="version" tick={{ fill: "#555", fontSize: 10 }} axisLine={false} tickLine={false} />
-                              <YAxis domain={[1, 10]} tick={{ fill: "#555", fontSize: 10 }} axisLine={false} tickLine={false} width={20} />
-                              <Tooltip
-                                contentStyle={{ background: "#111", border: "1px solid #333", borderRadius: 8, color: "#fff", fontSize: 12 }}
-                                cursor={false}
-                              />
-                              <Line type="monotone" dataKey="score" stroke="#C9A84C" strokeWidth={2} dot={{ fill: "#C9A84C", r: 3 }} />
+                              <XAxis dataKey="v" tick={{ fill: "#555", fontSize: 10 }} axisLine={false} tickLine={false} />
+                              <YAxis domain={[1, 10]} tick={{ fill: "#555", fontSize: 10 }} axisLine={false} tickLine={false} width={18} />
+                              <Tooltip contentStyle={{ background: "#111", border: "1px solid #333", color: "#fff", fontSize: 11 }} cursor={false} />
+                              <Line type="monotone" dataKey="score" stroke="#FF2D2D" strokeWidth={2} dot={{ fill: "#FF2D2D", r: 3 }} />
                             </LineChart>
                           </ResponsiveContainer>
                         </div>
                       )}
-
-                      {/* Versions list */}
                       <div className="space-y-2">
                         {sorted.map(v => (
                           <button
                             key={v.id}
                             onClick={() => navigate(createPageUrl(`Analysis?id=${v.id}`))}
-                            className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-[#0D0D0F] border border-white/5 hover:border-white/15 transition-all select-none"
+                            className="w-full flex items-center justify-between px-3 py-2.5 border border-white/5 hover:border-white/15 transition-all"
                           >
                             <div className="flex items-center gap-3">
-                              <span className="text-white/40 text-sm">v{v.version_number}</span>
-                              <div className="flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                                <span className="text-white/30 text-xs">{v.red_count}</span>
-                                <span className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
-                                <span className="text-white/30 text-xs">{v.yellow_count}</span>
-                                <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                <span className="text-white/30 text-xs">{v.green_count}</span>
+                              <span className="text-white/40 text-xs font-mono">v{v.version_number}</span>
+                              <div className="flex items-center gap-2 text-xs">
+                                <span className="w-1.5 h-1.5 bg-[#FF2D2D]" />
+                                <span className="text-white/30">{v.red_count}</span>
+                                <span className="w-1.5 h-1.5 bg-[#FBBF24]" />
+                                <span className="text-white/30">{v.yellow_count}</span>
+                                <span className="w-1.5 h-1.5 bg-[#4ADE80]" />
+                                <span className="text-white/30">{v.green_count}</span>
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-light" style={{ color: scoreColor(v.poem_score) }}>{v.poem_score}/10</span>
-                              <ChevronRight className="w-3.5 h-3.5 text-white/20" />
+                              <ScoreBadge score={v.poem_score} />
+                              <ChevronRight className="w-3 h-3 text-white/20" />
                             </div>
                           </button>
                         ))}
                       </div>
+                      <button
+                        onClick={() => {
+                          const prev = encodeURIComponent(latest.poem_text);
+                          const t = encodeURIComponent(latest.title);
+                          const v = encodeURIComponent(String((latest.version_number || 1) + 1));
+                          navigate(createPageUrl(`Submit?previous=${prev}&title=${t}&version=${v}`));
+                        }}
+                        className="mt-3 w-full py-2.5 text-xs font-bold tracking-[0.15em] uppercase text-white flex items-center justify-center gap-2"
+                        style={{ background: "#FF2D2D" }}
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        Submit New Revision
+                      </button>
                     </div>
                   )}
                 </div>

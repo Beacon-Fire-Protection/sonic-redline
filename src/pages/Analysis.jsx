@@ -2,24 +2,45 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { Loader2, Download, RefreshCw, PlusCircle, Circle } from "lucide-react";
+import { Loader2, Download, RefreshCw, Plus } from "lucide-react";
 
-const FLAG_STYLES = {
-  RED: { dot: "bg-red-500", label: "text-red-400", border: "border-red-800/40", bg: "bg-red-950/20" },
-  YELLOW: { dot: "bg-yellow-400", label: "text-yellow-400", border: "border-yellow-800/40", bg: "bg-yellow-950/20" },
-  GREEN: { dot: "bg-green-500", label: "text-green-400", border: "border-green-800/40", bg: "bg-green-950/20" },
+const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
+
+const FLAG = {
+  RED:    { dot: "bg-[#FF2D2D]", text: "text-[#FF2D2D]", border: "border-[#FF2D2D]/25", bg: "bg-[#FF2D2D]/8" },
+  YELLOW: { dot: "bg-[#FBBF24]", text: "text-[#FBBF24]", border: "border-[#FBBF24]/25", bg: "bg-[#FBBF24]/8" },
+  GREEN:  { dot: "bg-[#4ADE80]", text: "text-[#4ADE80]", border: "border-[#4ADE80]/25", bg: "bg-[#4ADE80]/8" },
 };
 
-function FlagDot({ flag }) {
-  const s = FLAG_STYLES[flag] || FLAG_STYLES.GREEN;
-  return <span className={`inline-block w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1 ${s.dot}`} />;
+const TABS = ["Poem", "Full Analysis", "Structure", "Comparison"];
+
+function ScoreBadge({ score }) {
+  const bg = score >= 7 ? "#4ADE80" : score >= 5 ? "#FBBF24" : "#FF2D2D";
+  return (
+    <div className="w-12 h-12 flex items-center justify-center font-bold text-lg text-black flex-shrink-0" style={{ background: bg }}>
+      {score}
+    </div>
+  );
 }
 
-function Section({ title, children }) {
+function ExpandableLine({ line }) {
+  const [open, setOpen] = useState(false);
+  const s = FLAG[line.flag] || FLAG.GREEN;
   return (
-    <div className="mb-10">
-      <div className="text-xs uppercase tracking-[0.25em] text-white/25 mb-4 select-none">{title}</div>
-      {children}
+    <div className={`border-b border-white/5 last:border-0 ${open ? s.bg : ""} transition-colors`}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center gap-3 px-4 py-3 text-left"
+      >
+        <span className="text-white/25 text-xs font-mono w-5 flex-shrink-0">{line.number}</span>
+        <span className={`w-2 h-2 flex-shrink-0 ${s.dot}`} />
+        <span className="text-white/70 text-sm font-mono flex-1 leading-relaxed">{line.text}</span>
+      </button>
+      {open && (
+        <div className={`px-4 pb-4 ml-8 border-l-2 ${s.border}`}>
+          <p className="text-white/55 text-sm leading-relaxed">{line.analysis}</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -29,6 +50,7 @@ export default function Analysis() {
   const [record, setRecord] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -53,19 +75,15 @@ export default function Analysis() {
   const handleExport = () => {
     if (!record || !analysis) return;
     let md = `# ${record.title} — Version ${record.version_number}\n\n`;
-    md += `**Poem Score: ${record.poem_score}/10**\n\n---\n\n`;
-    md += `## Full Poem\n\n`;
-    analysis.lines?.forEach(l => {
-      md += `[${l.number}] ${l.flag} — ${l.text}\n`;
-    });
+    md += `**Objective: ${analysis.score_objective}/10 | Subjective: ${analysis.score_subjective}/10 | Combined: ${analysis.score_combined}/10**\n\n`;
+    md += `🔴 ${record.red_count} · 🟡 ${record.yellow_count} · 🟢 ${record.green_count}\n\n---\n\n## Poem\n\n`;
+    analysis.lines?.forEach(l => { md += `[${l.number}] [${l.flag}] ${l.text}\n`; });
     md += `\n---\n\n## Line-by-Line Analysis\n\n`;
-    analysis.lines?.forEach(l => {
-      md += `### Line ${l.number}\n${l.text}\n\n${l.analysis}\n\n`;
-    });
+    analysis.lines?.forEach(l => { md += `### Line ${l.number} [${l.flag}]\n${l.text}\n\n${l.analysis}\n\n`; });
     md += `## Structural Movements\n\n${analysis.structural_movements}\n\n`;
-    if (analysis.what_changed) md += `## What Changed\n\n${analysis.what_changed}\n\n`;
-    if (analysis.comparison_scorecard) md += `## Comparison Scorecard\n\n${analysis.comparison_scorecard}\n\n`;
-    md += `## Remaining Revision Targets\n\n${analysis.remaining_targets}\n`;
+    md += `## Revision Targets\n\n${analysis.remaining_targets}\n`;
+    if (analysis.what_changed) md += `\n## What Changed\n\n${analysis.what_changed}\n`;
+    if (analysis.comparison_scorecard) md += `\n## Comparison Scorecard\n\n${analysis.comparison_scorecard}\n`;
 
     const blob = new Blob([md], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
@@ -76,141 +94,174 @@ export default function Analysis() {
     URL.revokeObjectURL(url);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0D0D0F] flex items-center justify-center">
-        <Loader2 className="w-6 h-6 text-white/30 animate-spin" />
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center">
+      <Loader2 className="w-6 h-6 text-white/30 animate-spin" />
+    </div>
+  );
 
-  const scoreColor = record.poem_score >= 8 ? "#5DB88A" : record.poem_score >= 5 ? "#C9A84C" : "#D9705F";
+  const parsedScore = analysis.score_combined ?? record.poem_score;
+  const visibleTabs = record.is_revision ? TABS : TABS.filter(t => t !== "Comparison");
 
   return (
-    <div className="min-h-screen bg-[#0D0D0F] text-white px-4 py-12">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="mb-10">
-          <div className="text-xs uppercase tracking-widest text-white/25 mb-2 select-none">Analysis</div>
-          <h1 className="text-3xl font-light text-white mb-1">{record.title || "Untitled"}</h1>
-          <div className="text-white/30 text-sm">Version {record.version_number}</div>
-          <div className="flex items-center gap-3 mt-4">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" />
-              <span className="text-white/40 text-xs">{record.red_count} red</span>
+    <div className="min-h-screen bg-[#1A1A1A] text-white flex flex-col">
+      {/* Header */}
+      <div className="px-4 pt-10 pb-5 border-b border-white/8">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-start gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <img src={LOGO} alt="" className="w-5 h-5 object-contain opacity-60" />
+                <span className="text-xs tracking-[0.2em] uppercase text-white/30">Analysis</span>
+              </div>
+              <h1 className="text-2xl font-bold text-white truncate">{record.title || "Untitled"}</h1>
+              <div className="text-white/35 text-sm mt-0.5">Version {record.version_number}</div>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 inline-block" />
-              <span className="text-white/40 text-xs">{record.yellow_count} yellow</span>
+            <ScoreBadge score={parsedScore} />
+          </div>
+
+          {/* Flag bar */}
+          <div className="flex items-center gap-5 mt-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 bg-[#FF2D2D]" />
+              <span className="text-[#FF2D2D] text-sm font-bold">{record.red_count}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-green-500 inline-block" />
-              <span className="text-white/40 text-xs">{record.green_count} green</span>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 bg-[#FBBF24]" />
+              <span className="text-[#FBBF24] text-sm font-bold">{record.yellow_count}</span>
             </div>
-            <div className="ml-auto text-lg font-light" style={{ color: scoreColor }}>
-              {record.poem_score}/10
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 bg-[#4ADE80]" />
+              <span className="text-[#4ADE80] text-sm font-bold">{record.green_count}</span>
+            </div>
+            <div className="ml-auto text-xs text-white/30 font-mono">
+              Obj: {analysis.score_objective} · Sub: {analysis.score_subjective} · Cmb: {analysis.score_combined}
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Full Poem */}
-        <Section title="Full Poem — Numbered Lines">
-          <div className="rounded-2xl border border-white/8 bg-[#141417] overflow-hidden">
-            {analysis.lines?.map((line) => {
-              const s = FLAG_STYLES[line.flag] || FLAG_STYLES.GREEN;
-              return (
-                <div key={line.number} className={`flex items-start gap-3 px-4 py-2.5 border-b border-white/5 last:border-0 ${s.bg}`}>
-                  <span className="text-white/20 text-xs font-mono w-6 flex-shrink-0 pt-0.5">{line.number}</span>
-                  <FlagDot flag={line.flag} />
-                  <span className="text-white/70 text-sm font-mono leading-relaxed flex-1">{line.text}</span>
-                </div>
-              );
-            })}
-          </div>
-        </Section>
+      {/* Tabs */}
+      <div className="border-b border-white/8 overflow-x-auto">
+        <div className="flex max-w-2xl mx-auto px-4">
+          {visibleTabs.map((tab, i) => {
+            const realIdx = TABS.indexOf(tab);
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(realIdx)}
+                className={`py-3 px-4 text-xs font-bold tracking-[0.15em] uppercase whitespace-nowrap border-b-2 transition-colors ${
+                  activeTab === realIdx
+                    ? "border-[#FF2D2D] text-white"
+                    : "border-transparent text-white/35 hover:text-white/60"
+                }`}
+              >
+                {tab}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-        {/* Line-by-Line */}
-        <Section title="Line-by-Line Analysis">
-          <div className="space-y-4">
-            {analysis.lines?.map((line) => {
-              const s = FLAG_STYLES[line.flag] || FLAG_STYLES.GREEN;
-              return (
-                <div key={line.number} className={`rounded-xl border ${s.border} p-4`}>
-                  <div className="flex items-start gap-3 mb-2">
-                    <span className="text-white/20 text-xs font-mono flex-shrink-0 pt-0.5">{line.number}</span>
-                    <FlagDot flag={line.flag} />
-                    <span className={`text-xs uppercase tracking-widest font-medium ${s.label} select-none`}>{line.flag}</span>
+      {/* Tab content */}
+      <div className="flex-1 overflow-y-auto pb-40">
+        <div className="max-w-2xl mx-auto px-4 py-6">
+
+          {/* Tab 0: Poem */}
+          {activeTab === 0 && (
+            <div className="border border-white/8 overflow-hidden">
+              {analysis.lines?.map((line) => (
+                <ExpandableLine key={line.number} line={line} />
+              ))}
+            </div>
+          )}
+
+          {/* Tab 1: Full Analysis */}
+          {activeTab === 1 && (
+            <div className="space-y-4">
+              {analysis.lines?.map((line) => {
+                const s = FLAG[line.flag] || FLAG.GREEN;
+                return (
+                  <div key={line.number} className={`border ${s.border} p-4`}>
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-white/20 text-xs font-mono">{line.number}</span>
+                      <span className={`w-2 h-2 ${s.dot}`} />
+                      <span className={`text-xs font-bold tracking-[0.15em] uppercase ${s.text}`}>{line.flag}</span>
+                    </div>
+                    <div className="text-white/45 text-sm font-mono mb-3 italic">"{line.text}"</div>
+                    <p className="text-white/65 text-sm leading-relaxed">{line.analysis}</p>
                   </div>
-                  <div className="text-white/50 text-sm font-mono mb-2 pl-1 italic">"{line.text}"</div>
-                  <p className="text-white/60 text-sm leading-relaxed pl-1">{line.analysis}</p>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Tab 2: Structure */}
+          {activeTab === 2 && (
+            <div className="space-y-6">
+              <div>
+                <div className="text-xs uppercase tracking-[0.2em] text-white/30 mb-3">Structural Movements</div>
+                <div className="border border-white/8 p-5">
+                  <p className="text-white/65 text-sm leading-relaxed whitespace-pre-wrap">{analysis.structural_movements}</p>
                 </div>
-              );
-            })}
-          </div>
-        </Section>
-
-        {/* Structural Movements */}
-        <Section title="Structural Movements">
-          <div className="rounded-xl border border-white/8 bg-[#141417] p-5">
-            <p className="text-white/60 text-sm leading-relaxed whitespace-pre-wrap">{analysis.structural_movements}</p>
-          </div>
-        </Section>
-
-        {/* What Changed (revisions only) */}
-        {record.is_revision && analysis.what_changed && (
-          <Section title="What Changed">
-            <div className="rounded-xl border border-amber-800/30 bg-amber-950/20 p-5">
-              <p className="text-white/60 text-sm leading-relaxed whitespace-pre-wrap">{analysis.what_changed}</p>
+              </div>
+              <div>
+                <div className="text-xs uppercase tracking-[0.2em] text-white/30 mb-3">Revision Targets</div>
+                <div className="border border-white/8 p-5">
+                  <p className="text-white/65 text-sm leading-relaxed whitespace-pre-wrap">{analysis.remaining_targets}</p>
+                </div>
+              </div>
             </div>
-          </Section>
-        )}
+          )}
 
-        {/* Comparison Scorecard (revisions only) */}
-        {record.is_revision && analysis.comparison_scorecard && (
-          <Section title="Comparison Scorecard">
-            <div className="rounded-xl border border-white/8 bg-[#141417] p-5">
-              <p className="text-white/60 text-sm leading-relaxed whitespace-pre-wrap">{analysis.comparison_scorecard}</p>
+          {/* Tab 3: Comparison */}
+          {activeTab === 3 && record.is_revision && (
+            <div className="space-y-6">
+              {analysis.what_changed && (
+                <div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-white/30 mb-3">What Changed</div>
+                  <div className="border border-[#FF2D2D]/20 bg-[#FF2D2D]/5 p-5">
+                    <p className="text-white/65 text-sm leading-relaxed whitespace-pre-wrap">{analysis.what_changed}</p>
+                  </div>
+                </div>
+              )}
+              {analysis.comparison_scorecard && (
+                <div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-white/30 mb-3">Comparison Scorecard</div>
+                  <div className="border border-white/8 p-5">
+                    <p className="text-white/65 text-sm leading-relaxed whitespace-pre-wrap">{analysis.comparison_scorecard}</p>
+                  </div>
+                </div>
+              )}
             </div>
-          </Section>
-        )}
-
-        {/* Remaining Targets */}
-        <Section title="Remaining Revision Targets">
-          <div className="rounded-xl border border-white/8 bg-[#141417] p-5">
-            <p className="text-white/60 text-sm leading-relaxed whitespace-pre-wrap">{analysis.remaining_targets}</p>
-          </div>
-        </Section>
-
-        {/* Poem Score */}
-        <div className="rounded-2xl border border-white/10 bg-[#141417] p-6 text-center mb-8">
-          <div className="text-xs uppercase tracking-widest text-white/25 mb-3 select-none">Poem Score</div>
-          <div className="text-6xl font-light" style={{ color: scoreColor }}>{record.poem_score}</div>
-          <div className="text-white/25 text-sm mt-1">/ 10</div>
+          )}
         </div>
+      </div>
 
-        {/* Actions */}
-        <div className="space-y-3">
+      {/* Bottom actions */}
+      <div className="fixed bottom-0 left-0 right-0 bg-[#1A1A1A] border-t border-white/8 p-4 pb-safe">
+        <div className="max-w-2xl mx-auto grid grid-cols-3 gap-3">
           <button
             onClick={handleRevision}
-            className="w-full py-4 rounded-2xl text-sm font-medium tracking-widest uppercase select-none transition-all flex items-center justify-center gap-2"
-            style={{ background: "linear-gradient(135deg, #dc2626 0%, #ef4444 100%)", color: "#fff" }}
+            className="py-3 text-xs font-bold tracking-[0.1em] uppercase text-white flex items-center justify-center gap-2"
+            style={{ background: "#FF2D2D" }}
           >
-            <RefreshCw className="w-4 h-4" />
-            Submit a Revision
+            <RefreshCw className="w-3.5 h-3.5" />
+            Revision
           </button>
           <button
             onClick={handleExport}
-            className="w-full py-4 rounded-2xl text-sm font-medium tracking-widest uppercase select-none transition-all flex items-center justify-center gap-2 bg-[#141417] border border-white/10 text-white/50 hover:text-white/80 hover:border-white/20"
+            className="py-3 text-xs font-bold tracking-[0.1em] uppercase text-white/60 hover:text-white border border-white/15 hover:border-white/30 flex items-center justify-center gap-2 transition-colors"
           >
-            <Download className="w-4 h-4" />
-            Export Analysis
+            <Download className="w-3.5 h-3.5" />
+            Export
           </button>
           <button
             onClick={() => navigate(createPageUrl("Submit"))}
-            className="w-full py-4 rounded-2xl text-sm font-medium tracking-widest uppercase select-none transition-all flex items-center justify-center gap-2 text-white/25 hover:text-white/50"
+            className="py-3 text-xs font-bold tracking-[0.1em] uppercase text-white/40 hover:text-white/70 flex items-center justify-center gap-2 transition-colors"
           >
-            <PlusCircle className="w-4 h-4" />
-            Start New Poem
+            <Plus className="w-3.5 h-3.5" />
+            New
           </button>
         </div>
       </div>
