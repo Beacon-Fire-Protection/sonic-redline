@@ -39,7 +39,7 @@ export default function Home() {
       `}</style>
 
       <div className="max-w-sm w-full mx-auto text-center">
-        <p className="home-tagline text-sm tracking-[0.2em] uppercase mb-8">
+        <p className="home-tagline text-sm tracking-[0.2em] uppercase mb-0">
           Structure. Sound. Truth.
         </p>
 
