@@ -86,7 +86,7 @@ export default function Layout({ children, currentPageName }) {
         <nav
           className="fixed bottom-0 left-0 right-0 border-t flex select-none z-50"
           style={{ 
-            paddingBottom: "env(safe-area-inset-bottom)",
+            paddingBottom: "calc(env(safe-area-inset-bottom) + 0.5rem)",
             background: `linear-gradient(180deg, rgba(45, 27, 78, 0.95) 0%, rgba(26, 15, 46, 0.98) 100%)`,
             borderColor: `${ACCENT_AQUA}40`,
             backdropFilter: "blur(10px)"
