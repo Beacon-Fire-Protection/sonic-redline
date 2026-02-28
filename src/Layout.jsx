@@ -50,7 +50,7 @@ export default function Layout({ children, currentPageName }) {
         }
 
         body {
-          overscroll-behavior: none;
+          overscroll-behavior: contain;
           background: linear-gradient(135deg, #1a0f2e 0%, #2d1b4e 100%);
         }
 
@@ -83,7 +83,7 @@ export default function Layout({ children, currentPageName }) {
           <img
             src={LOGO}
             alt="Sonic Redline"
-            className="h-10 w-auto object-contain drop-shadow-lg"
+            className="h-100 w-auto object-contain drop-shadow-lg"
             style={{
               filter: "drop-shadow(0 0 20px rgba(255, 51, 153, 0.3))",
             }}
