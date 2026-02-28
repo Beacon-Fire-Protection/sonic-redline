@@ -76,8 +76,8 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       <main
-        className="flex-1 overflow-y-auto"
-        style={{ paddingBottom: showTabs ? "calc(4.5rem + env(safe-area-inset-bottom))" : "env(safe-area-inset-bottom)" }}
+        className="flex-1 overflow-hidden"
+        style={{ paddingBottom: showTabs ? "calc(6rem + env(safe-area-inset-bottom))" : "env(safe-area-inset-bottom)" }}
       >
         {children}
       </main>
