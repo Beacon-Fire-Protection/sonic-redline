@@ -263,7 +263,7 @@ export default function Analysis() {
 
       {/* Bottom actions */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#0D0D0D] border-t border-white/8 p-4 pb-safe">
-        <div className="max-w-2xl mx-auto grid grid-cols-3 gap-3">
+        <div className="max-w-2xl mx-auto grid grid-cols-4 gap-3">
           <button
             onClick={handleRevision}
             className="py-3 text-xs font-bold tracking-[0.1em] uppercase text-white flex items-center justify-center gap-2"
@@ -271,6 +271,15 @@ export default function Analysis() {
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Revision
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={savingPoem}
+            className="py-3 text-xs font-bold tracking-[0.1em] uppercase text-white flex items-center justify-center gap-2 disabled:opacity-50"
+            style={{ background: "#1A6FFF" }}
+          >
+            {savingPoem ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bookmark className="w-3.5 h-3.5" />}
+            Save
           </button>
           <button
             onClick={handleExport}
