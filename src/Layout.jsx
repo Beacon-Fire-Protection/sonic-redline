@@ -41,7 +41,7 @@ export default function Layout({ children, currentPageName }) {
       `}</style>
 
       {/* Top header bar */}
-      <header className="flex items-center justify-between bg-[#111] border-b border-white/8 h-44 px-4 flex-shrink-0">
+      <header className="flex items-center justify-between bg-[#0D0D0D] border-b border-white/8 h-44 px-4 flex-shrink-0">
         <Link to={createPageUrl("Home")}>
           <img src={LOGO} alt="Sonic Redline" className="h-40 w-auto object-contain" />
         </Link>
