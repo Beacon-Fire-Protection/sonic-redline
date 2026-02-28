@@ -5,7 +5,13 @@ const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/
 
 export default function Home() {
   return (
-    <div className="min-h-screen text-foreground flex flex-col items-center justify-center px-6 py-16" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+    <div
+      className="h-screen text-foreground flex items-center justify-center px-6"
+      style={{
+        background:
+          "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)",
+      }}
+    >
       <style>{`
         .home-tagline {
           color: hsl(var(--muted-foreground));
@@ -35,7 +41,9 @@ export default function Home() {
       `}</style>
 
       <div className="max-w-sm w-full text-center">
-        <p className="home-tagline text-sm tracking-[0.2em] uppercase mb-12">Structure. Sound. Truth.</p>
+        <p className="home-tagline text-sm tracking-[0.2em] uppercase mb-12">
+          Structure. Sound. Truth.
+        </p>
 
         <div className="home-button-container p-6 mb-4">
           <Link
