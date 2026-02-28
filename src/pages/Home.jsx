@@ -43,7 +43,7 @@ export default function Home() {
           Structure. Sound. Truth.
         </p>
 
-        <div className="home-button-container p-4 mb-4">
+        <div className="home-button-container p-4 mb-0">
           <Link
             to={createPageUrl("Submit")}
             className="home-primary-button block w-full py-3 text-sm font-bold tracking-[0.15em] uppercase"
