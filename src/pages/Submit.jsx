@@ -144,7 +144,7 @@ export default function Submit() {
             />
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-[#111] border border-white/8">
+          <div className="flex items-center justify-between p-4 bg-[#1A1A1A] border border-white/8">
             <span className="text-sm text-white/50">Compare to previous version?</span>
             <button
               onClick={() => setIsRevision(!isRevision)}
