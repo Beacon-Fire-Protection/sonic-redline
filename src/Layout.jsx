@@ -40,6 +40,16 @@ export default function Layout({ children, currentPageName }) {
         .pb-safe { padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
       `}</style>
 
+      {/* Top header bar */}
+      <header className="flex items-center justify-between bg-[#111] border-b border-white/8 h-14 px-4 flex-shrink-0">
+        <Link to={createPageUrl("Home")}>
+          <img src={LOGO} alt="Sonic Redline" className="h-10 w-auto object-contain" />
+        </Link>
+        <span className="text-xs font-bold tracking-[0.2em] uppercase text-white/40">
+          {PAGE_NAMES[currentPageName] || currentPageName}
+        </span>
+      </header>
+
       <main
         className="flex-1 overflow-y-auto"
         style={{ paddingBottom: showTabs ? "calc(4.5rem + env(safe-area-inset-bottom))" : "env(safe-area-inset-bottom)" }}
