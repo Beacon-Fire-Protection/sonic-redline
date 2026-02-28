@@ -107,7 +107,7 @@ export default function Submit() {
   };
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] text-white px-4 py-10">
+    <div className="min-h-screen bg-[#0D0D0D] text-white px-4 py-10">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-3 mb-10">
           <img src={LOGO} alt="Sonic Redline" className="w-8 h-8 object-contain" />
