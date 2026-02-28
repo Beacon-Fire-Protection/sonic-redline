@@ -140,7 +140,7 @@ export default function Submit() {
               onChange={e => setPoemText(e.target.value)}
               placeholder="Begin here…"
               rows={14}
-              className="w-full bg-[#111] border border-white/10 px-4 py-4 text-white placeholder-white/20 resize-none focus:outline-none focus:border-[#FF2D2D]/50 transition-colors leading-relaxed font-mono text-sm"
+              className="w-full bg-[#1A1A1A] border border-white/10 px-4 py-4 text-white placeholder-white/20 resize-none focus:outline-none focus:border-[#FF2D2D]/50 transition-colors leading-relaxed font-mono text-sm"
             />
           </div>
 
