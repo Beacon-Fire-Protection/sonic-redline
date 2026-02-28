@@ -104,16 +104,12 @@ export default function Analysis() {
   const visibleTabs = record.is_revision ? TABS : TABS.filter(t => t !== "Comparison");
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] text-white flex flex-col">
+    <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col">
       {/* Header */}
-      <div className="px-4 pt-10 pb-5 border-b border-white/8">
+      <div className="px-4 pt-6 pb-5 border-b border-white/8">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-start gap-4">
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <img src={LOGO} alt="" className="w-5 h-5 object-contain opacity-60" />
-                <span className="text-xs tracking-[0.2em] uppercase text-white/30">Analysis</span>
-              </div>
               <h1 className="text-2xl font-bold text-white truncate">{record.title || "Untitled"}</h1>
               <div className="text-white/35 text-sm mt-0.5">Version {record.version_number}</div>
             </div>
