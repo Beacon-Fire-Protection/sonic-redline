@@ -16,7 +16,7 @@ const PAGE_NAMES = {
 const tabs = [
   { name: "Home", label: "Home", icon: Home },
   { name: "Submit", label: "Analyze", icon: () => (
-    <svg width="20" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter">
+    <svg width="20" height="60" v-align="top" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter">
       <path d="M12 5v14M5 12h14" />
     </svg>
   )},
