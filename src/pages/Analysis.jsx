@@ -95,7 +95,7 @@ export default function Analysis() {
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center">
+    <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
       <Loader2 className="w-6 h-6 text-white/30 animate-spin" />
     </div>
   );
