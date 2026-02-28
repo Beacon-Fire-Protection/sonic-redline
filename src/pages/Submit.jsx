@@ -6,6 +6,22 @@ import { Loader2 } from "lucide-react";
 
 const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
 
+// Centralized color palette
+const COLORS = {
+  BG_DARK: "#1a0f2e",
+  BG_CARD: "#2d1b4e",
+  PRIMARY: "#FF3399",      // Hot pink
+  ACCENT: "#06b6d4",       // Bright aqua
+  TEXT_PRIMARY: "#f3e8ff", // Lavender text
+  TEXT_SECONDARY: "#c084fc", // Soft purple text
+  BORDER: "rgba(6, 182, 212, 0.2)",
+  INPUT_BG: "#2d1b4e",
+  INPUT_BORDER: "rgba(255, 255, 255, 0.1)",
+  FOCUS_BORDER: "rgba(255, 51, 153, 0.5)",
+  ERROR: "#FF3366",
+  BUTTON_DISABLED_BG: "#333333",
+};
+
 const SYSTEM_PROMPT = `You are Sonic Redline, a brutally honest poetry editor. You analyze structure, sound, and syntax. You never suggest what to write. You never flatter. You never summarize theme. You are not a book reviewer. You are not a cheerleader. You are a structural engineer inspecting a building.
 
 ABSOLUTE RULES — VIOLATION OF ANY OF THESE IS A FAILURE
@@ -107,73 +123,122 @@ export default function Submit() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D0D0D] text-white px-4 py-10">
+    <div className="min-h-screen text-white px-4 py-10" style={{ backgroundColor: COLORS.BG_DARK }}>
+      <style>{`
+        .submit-input, .submit-textarea {
+          background-color: ${COLORS.INPUT_BG};
+          border-color: ${COLORS.INPUT_BORDER};
+          color: ${COLORS.TEXT_PRIMARY};
+        }
+        .submit-input::placeholder, .submit-textarea::placeholder {
+          color: rgba(255, 255, 255, 0.2);
+        }
+        .submit-input:focus, .submit-textarea:focus {
+          border-color: ${COLORS.FOCUS_BORDER};
+          outline: none;
+        }
+        .submit-label {
+          color: ${COLORS.TEXT_SECONDARY};
+        }
+        .submit-toggle-container {
+          background-color: ${COLORS.INPUT_BG};
+          border-color: ${COLORS.INPUT_BORDER};
+        }
+        .submit-toggle-inactive {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+        .submit-toggle-active {
+          background-color: ${COLORS.PRIMARY};
+        }
+        .submit-button-submit {
+          background-color: ${COLORS.PRIMARY};
+          color: white;
+          transition: all 0.3s ease;
+        }
+        .submit-button-submit:hover:not(:disabled) {
+          filter: brightness(1.1);
+          box-shadow: 0 0 20px ${COLORS.PRIMARY}40;
+        }
+        .submit-button-submit:disabled {
+          background-color: ${COLORS.BUTTON_DISABLED_BG};
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+        .submit-error {
+          color: ${COLORS.ERROR};
+        }
+      `}</style>
+
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold text-white mb-8 tracking-tight">Analyze a Poem</h1>
+        <h1 className="text-3xl font-bold mb-8 tracking-tight" style={{ color: COLORS.ACCENT }}>Analyze a Poem</h1>
 
         <div className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs uppercase tracking-widest text-white/30 mb-2 block">Title</label>
+              <label className="text-xs uppercase tracking-widest mb-2 block submit-label">Title</label>
               <input
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 placeholder="Untitled"
-                className="w-full bg-[#1A1A1A] border border-white/10 px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-[#FF2D2D]/50 transition-colors text-sm"
+                className="submit-input w-full border px-4 py-3 text-sm transition-colors"
               />
             </div>
             <div>
-              <label className="text-xs uppercase tracking-widest text-white/30 mb-2 block">Version</label>
+              <label className="text-xs uppercase tracking-widest mb-2 block submit-label">Version</label>
               <input
                 value={version}
                 onChange={e => setVersion(e.target.value)}
                 placeholder="1"
-                className="w-full bg-[#1A1A1A] border border-white/10 px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-[#FF2D2D]/50 transition-colors text-sm"
+                className="submit-input w-full border px-4 py-3 text-sm transition-colors"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-xs uppercase tracking-widest text-white/30 mb-2 block">Paste your poem here</label>
+            <label className="text-xs uppercase tracking-widest mb-2 block submit-label">Paste your poem here</label>
             <textarea
               value={poemText}
               onChange={e => setPoemText(e.target.value)}
               placeholder="Begin here…"
               rows={14}
-              className="w-full bg-[#1A1A1A] border border-white/10 px-4 py-4 text-white placeholder-white/20 resize-none focus:outline-none focus:border-[#FF2D2D]/50 transition-colors leading-relaxed font-mono text-sm"
+              className="submit-textarea w-full border px-4 py-4 resize-none leading-relaxed font-mono text-sm transition-colors"
             />
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-[#1A1A1A] border border-white/8">
-            <span className="text-sm text-white/50">Compare to previous version?</span>
+          <div className="submit-toggle-container flex items-center justify-between p-4 border">
+            <span className="text-sm" style={{ color: COLORS.TEXT_SECONDARY }}>Compare to previous version?</span>
             <button
               onClick={() => setIsRevision(!isRevision)}
-              className={`relative w-11 h-6 transition-colors select-none ${isRevision ? "bg-[#FF2D2D]" : "bg-white/15"}`}
+              className="relative w-11 h-6 transition-colors select-none"
+              style={{ backgroundColor: isRevision ? COLORS.PRIMARY : "rgba(255, 255, 255, 0.15)" }}
             >
-              <span className={`absolute top-1 w-4 h-4 bg-white transition-transform shadow ${isRevision ? "translate-x-6" : "translate-x-1"}`} />
+              <span 
+                className="absolute top-1 w-4 h-4 bg-white transition-transform shadow" 
+                style={{ transform: isRevision ? "translateX(24px)" : "translateX(4px)" }} 
+              />
             </button>
           </div>
 
           {isRevision && (
             <div>
-              <label className="text-xs uppercase tracking-widest text-white/30 mb-2 block">Paste the previous version here</label>
+              <label className="text-xs uppercase tracking-widest mb-2 block submit-label">Paste the previous version here</label>
               <textarea
                 value={previousText}
                 onChange={e => setPreviousText(e.target.value)}
                 placeholder="Previous version…"
                 rows={10}
-                className="w-full bg-[#1A1A1A] border border-[#FF2D2D]/20 px-4 py-4 text-white placeholder-white/20 resize-none focus:outline-none focus:border-[#FF2D2D]/40 transition-colors leading-relaxed font-mono text-sm"
+                className="submit-textarea w-full border px-4 py-4 resize-none leading-relaxed font-mono text-sm transition-colors"
+                style={{ borderColor: `${COLORS.PRIMARY}33` }}
               />
             </div>
           )}
 
-          {error && <p className="text-[#FF2D2D] text-sm">{error}</p>}
+          {error && <p className="submit-error text-sm">{error}</p>}
 
           <button
             onClick={handleSubmit}
             disabled={loading || !poemText.trim()}
-            className="w-full py-4 text-sm font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-30 disabled:cursor-not-allowed text-white"
-            style={{ background: loading || !poemText.trim() ? "#333" : "#FF2D2D" }}
+            className="submit-button-submit w-full py-4 text-sm font-bold tracking-[0.15em] uppercase"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
