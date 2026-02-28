@@ -73,6 +73,32 @@ export default function Analysis() {
     navigate(createPageUrl(`Submit?previous=${prev}&title=${t}&version=${v}`));
   };
 
+  const handleSave = async () => {
+    if (window.self !== window.top) {
+      alert("Checkout only works from the published app. Please open the app in a new tab.");
+      return;
+    }
+    setSavingPoem(true);
+    const currentUrl = window.location.href;
+    const successUrl = currentUrl + (currentUrl.includes("?") ? "&saved=1" : "?saved=1");
+    const cancelUrl = currentUrl;
+    try {
+      const response = await base44.functions.invoke("createCheckout", {
+        poem_analysis_id: record.id,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+      });
+      if (response.data?.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to start checkout. Please try again.");
+    } finally {
+      setSavingPoem(false);
+    }
+  };
+
   const handleExport = () => {
     if (!record || !analysis) return;
     let md = `# ${record.title} — Version ${record.version_number}\n\n`;
