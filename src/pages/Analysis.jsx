@@ -51,6 +51,7 @@ export default function Analysis() {
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
+  const [savingPoem, setSavingPoem] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
