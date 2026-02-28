@@ -2,12 +2,13 @@ import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Music, Loader2 } from "lucide-react";
 
+// Unicorn LEGO rhythm palette - vibrant and magical!
 const PENTAMETER_STYLES = {
-  iambic:    { color: "#C9A84C", bg: "from-amber-950/70 to-yellow-900/50",   border: "border-amber-700/60"   },
-  trochaic:  { color: "#9B7ADE", bg: "from-purple-950/70 to-violet-900/50",  border: "border-purple-700/60"  },
-  anapestic: { color: "#5FAAD9", bg: "from-blue-950/70 to-cyan-900/50",      border: "border-blue-700/60"    },
-  dactylic:  { color: "#5DB88A", bg: "from-emerald-950/70 to-green-900/50",  border: "border-emerald-700/60" },
-  spondaic:  { color: "#D9705F", bg: "from-red-950/70 to-rose-900/50",       border: "border-red-700/60"     },
+  iambic:    { color: "#FBBF24", bg: "from-yellow-950/60 to-amber-900/40",   border: "border-yellow-600/50"   },
+  trochaic:  { color: "#F472B6", bg: "from-pink-950/60 to-rose-900/40",      border: "border-pink-600/50"    },
+  anapestic: { color: "#06B6D4", bg: "from-cyan-950/60 to-blue-900/40",      border: "border-cyan-600/50"    },
+  dactylic:  { color: "#10B981", bg: "from-emerald-950/60 to-green-900/40",  border: "border-emerald-600/50" },
+  spondaic:  { color: "#EC4899", bg: "from-purple-950/60 to-violet-900/40",  border: "border-purple-600/50"  },
 };
 
 const STRESS_COLORS = {
@@ -54,10 +55,55 @@ export default function RhythmHelper() {
   const style = result ? (PENTAMETER_STYLES[result.meter] || PENTAMETER_STYLES.iambic) : null;
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] text-white px-4 py-8">
+    <div className="min-h-screen text-white px-4 py-8" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+      <style>{`
+        .rhythm-input {
+          background-color: hsl(var(--input));
+          border-color: hsl(var(--border));
+          color: hsl(var(--foreground));
+        }
+        .rhythm-input::placeholder {
+          color: hsl(var(--muted-foreground));
+        }
+        .rhythm-input:focus {
+          border-color: hsl(var(--primary) / 0.5);
+          outline: none;
+        }
+        .rhythm-button {
+          background-color: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+          transition: all 0.3s ease;
+        }
+        .rhythm-button:hover:not(:disabled) {
+          filter: brightness(1.1);
+          box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+        }
+        .rhythm-button:disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+        .rhythm-label {
+          color: hsl(var(--muted-foreground));
+        }
+        .rhythm-result-card {
+          background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.8) 100%);
+          border-color: hsl(var(--border));
+        }
+        .rhythm-text-secondary {
+          color: hsl(var(--muted-foreground));
+        }
+        .rhythm-reference {
+          background-color: hsl(var(--input));
+          border-color: hsl(var(--border));
+        }
+      `}</style>
+
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold text-white mb-1">Rhythm Analyzer</h1>
-        <p className="text-white/30 text-sm mb-8 leading-relaxed">
+        <div className="flex items-center gap-2 mb-1">
+          <Music className="w-6 h-6" style={{ color: "hsl(var(--accent))" }} />
+          <h1 className="text-2xl font-bold text-foreground">Rhythm Analyzer</h1>
+        </div>
+        <p className="rhythm-text-secondary text-sm mb-8 leading-relaxed">
           Paste a line to detect its metrical pattern and syllable stresses.
         </p>
 
@@ -68,13 +114,12 @@ export default function RhythmHelper() {
             onChange={e => setSentence(e.target.value)}
             onKeyDown={e => e.key === "Enter" && analyze()}
             placeholder="Shall I compare thee to a summer's day?"
-            className="flex-1 bg-[#111] border border-white/10 px-4 py-3 text-white placeholder-white/20 focus:outline-none focus:border-[#FF2D2D]/50 transition-colors text-sm"
+            className="rhythm-input flex-1 border px-4 py-3 transition-colors text-sm"
           />
           <button
             onClick={analyze}
             disabled={loading || !sentence.trim()}
-            className="px-5 py-3 rounded-xl text-sm font-medium select-none transition-all disabled:opacity-30"
-            style={{ background: "#FF2D2D", color: "#fff" }}
+            className="rhythm-button px-5 py-3 rounded-xl text-sm font-medium select-none"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Scan"}
           </button>
@@ -86,11 +131,11 @@ export default function RhythmHelper() {
             {/* Meter + confidence */}
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-xs uppercase tracking-widest text-white/30 mb-1 select-none">Meter</div>
+                <div className="text-xs uppercase tracking-widest rhythm-label mb-1 select-none">Meter</div>
                 <div className="text-2xl font-light capitalize" style={{ color: style.color }}>{result.meter}</div>
               </div>
               <div className="text-right">
-                <div className="text-xs uppercase tracking-widest text-white/30 mb-1 select-none">Confidence</div>
+                <div className="text-xs uppercase tracking-widest rhythm-label mb-1 select-none">Confidence</div>
                 <div className="text-2xl font-light text-white">{result.confidence}%</div>
               </div>
             </div>
@@ -98,7 +143,7 @@ export default function RhythmHelper() {
             {/* Syllable stress breakdown */}
             {result.syllables?.length > 0 && (
               <div>
-                <div className="text-xs uppercase tracking-widest text-white/30 mb-3 select-none">Syllable Breakdown</div>
+                <div className="text-xs uppercase tracking-widest rhythm-label mb-3 select-none">Syllable Breakdown</div>
                 <div className="flex flex-wrap gap-2">
                   {result.syllables.map((s, i) => (
                     <div key={i} className="flex flex-col items-center gap-1">
@@ -115,7 +160,7 @@ export default function RhythmHelper() {
             {/* Explanation */}
             {result.explanation && (
               <div>
-                <div className="text-xs uppercase tracking-widest text-white/30 mb-2 select-none">Analysis</div>
+                <div className="text-xs uppercase tracking-widest rhythm-label mb-2 select-none">Analysis</div>
                 <p className="text-white/55 text-sm leading-relaxed">{result.explanation}</p>
               </div>
             )}
@@ -123,8 +168,8 @@ export default function RhythmHelper() {
         )}
 
         {/* Reference */}
-        <div className="mt-10 p-4 bg-[#111] border border-white/8">
-          <div className="text-xs uppercase tracking-widest text-white/25 mb-3 select-none">Quick Reference</div>
+        <div className="mt-10 p-4 rhythm-reference border">
+          <div className="text-xs uppercase tracking-widest rhythm-label mb-3 select-none">Quick Reference</div>
           <div className="space-y-1.5">
             {[
               ["Iambic", "da-DUM da-DUM da-DUM da-DUM"],
@@ -134,7 +179,7 @@ export default function RhythmHelper() {
               ["Spondaic", "DUM-DUM DUM-DUM DUM-DUM"],
             ].map(([name, pat]) => (
               <div key={name} className="flex justify-between text-xs">
-                <span className="text-white/35">{name}</span>
+                <span className="rhythm-text-secondary">{name}</span>
                 <span className="text-white/20 font-mono">{pat}</span>
               </div>
             ))}
