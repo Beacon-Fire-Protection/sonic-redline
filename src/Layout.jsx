@@ -1,6 +1,17 @@
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Home, BookOpen, User } from "lucide-react";
+import { Home, BookOpen, User, Music } from "lucide-react";
+
+const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
+
+const PAGE_NAMES = {
+  Home: "Home",
+  Submit: "Analyze",
+  Collection: "Saved Poems",
+  Profile: "Profile",
+  RhythmHelper: "Rhythm",
+  Analysis: "Analysis",
+};
 
 const tabs = [
   { name: "Home", label: "Home", icon: Home },
@@ -10,6 +21,7 @@ const tabs = [
     </svg>
   )},
   { name: "Collection", label: "Saved", icon: BookOpen },
+  { name: "RhythmHelper", label: "Rhythm", icon: Music },
   { name: "Profile", label: "Profile", icon: User },
 ];
 
