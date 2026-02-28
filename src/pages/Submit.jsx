@@ -6,22 +6,6 @@ import { Loader2 } from "lucide-react";
 
 const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
 
-// Centralized color palette
-const COLORS = {
-  BG_DARK: "#1a0f2e",
-  BG_CARD: "#2d1b4e",
-  PRIMARY: "#FF3399",      // Hot pink
-  ACCENT: "#06b6d4",       // Bright aqua
-  TEXT_PRIMARY: "#f3e8ff", // Lavender text
-  TEXT_SECONDARY: "#c084fc", // Soft purple text
-  BORDER: "rgba(6, 182, 212, 0.2)",
-  INPUT_BG: "#2d1b4e",
-  INPUT_BORDER: "rgba(255, 255, 255, 0.1)",
-  FOCUS_BORDER: "rgba(255, 51, 153, 0.5)",
-  ERROR: "#FF3366",
-  BUTTON_DISABLED_BG: "#333333",
-};
-
 const SYSTEM_PROMPT = `You are Sonic Redline, a brutally honest poetry editor. You analyze structure, sound, and syntax. You never suggest what to write. You never flatter. You never summarize theme. You are not a book reviewer. You are not a cheerleader. You are a structural engineer inspecting a building.
 
 ABSOLUTE RULES — VIOLATION OF ANY OF THESE IS A FAILURE
@@ -123,54 +107,58 @@ export default function Submit() {
   };
 
   return (
-    <div className="min-h-screen text-white px-4 py-10" style={{ backgroundColor: COLORS.BG_DARK }}>
+    <div className="min-h-screen text-foreground px-4 py-10" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
       <style>{`
         .submit-input, .submit-textarea {
-          background-color: ${COLORS.INPUT_BG};
-          border-color: ${COLORS.INPUT_BORDER};
-          color: ${COLORS.TEXT_PRIMARY};
+          background-color: hsl(var(--card) / 0.6);
+          border-color: hsl(var(--border));
+          color: hsl(var(--foreground));
         }
         .submit-input::placeholder, .submit-textarea::placeholder {
-          color: rgba(255, 255, 255, 0.2);
+          color: hsl(var(--muted-foreground) / 0.4);
         }
         .submit-input:focus, .submit-textarea:focus {
-          border-color: ${COLORS.FOCUS_BORDER};
+          border-color: hsl(var(--primary) / 0.5);
           outline: none;
+          box-shadow: 0 0 0 2px hsl(var(--primary) / 0.15);
         }
         .submit-label {
-          color: ${COLORS.TEXT_SECONDARY};
+          color: hsl(var(--muted-foreground));
         }
         .submit-toggle-container {
-          background-color: ${COLORS.INPUT_BG};
-          border-color: ${COLORS.INPUT_BORDER};
+          background-color: hsl(var(--card) / 0.6);
+          border-color: hsl(var(--border));
         }
         .submit-toggle-inactive {
-          background-color: rgba(255, 255, 255, 0.1);
+          background-color: hsl(var(--border));
         }
         .submit-toggle-active {
-          background-color: ${COLORS.PRIMARY};
+          background-color: hsl(var(--primary));
         }
         .submit-button-submit {
-          background-color: ${COLORS.PRIMARY};
-          color: white;
+          background-color: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
           transition: all 0.3s ease;
         }
         .submit-button-submit:hover:not(:disabled) {
-          filter: brightness(1.1);
-          box-shadow: 0 0 20px ${COLORS.PRIMARY}40;
+          filter: brightness(1.15);
+          box-shadow: 0 0 24px hsl(var(--primary) / 0.4);
         }
         .submit-button-submit:disabled {
-          background-color: ${COLORS.BUTTON_DISABLED_BG};
-          opacity: 0.3;
+          background-color: hsl(var(--border));
+          opacity: 0.5;
           cursor: not-allowed;
         }
         .submit-error {
-          color: ${COLORS.ERROR};
+          color: #EC4899;
+        }
+        .submit-heading {
+          color: hsl(var(--primary));
         }
       `}</style>
 
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 tracking-tight" style={{ color: COLORS.ACCENT }}>Analyze a Poem</h1>
+        <h1 className="submit-heading text-3xl font-bold mb-8 tracking-tight">Analyze a Poem</h1>
 
         <div className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
@@ -206,11 +194,11 @@ export default function Submit() {
           </div>
 
           <div className="submit-toggle-container flex items-center justify-between p-4 border">
-            <span className="text-sm" style={{ color: COLORS.TEXT_SECONDARY }}>Compare to previous version?</span>
+            <span className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>Compare to previous version?</span>
             <button
               onClick={() => setIsRevision(!isRevision)}
               className="relative w-11 h-6 transition-colors select-none"
-              style={{ backgroundColor: isRevision ? COLORS.PRIMARY : "rgba(255, 255, 255, 0.15)" }}
+              style={{ backgroundColor: isRevision ? "hsl(var(--primary))" : "hsl(var(--border))" }}
             >
               <span 
                 className="absolute top-1 w-4 h-4 bg-white transition-transform shadow" 
@@ -228,7 +216,7 @@ export default function Submit() {
                 placeholder="Previous version…"
                 rows={10}
                 className="submit-textarea w-full border px-4 py-4 resize-none leading-relaxed font-mono text-sm transition-colors"
-                style={{ borderColor: `${COLORS.PRIMARY}33` }}
+                style={{ borderColor: "hsl(var(--primary) / 0.3)" }}
               />
             </div>
           )}
