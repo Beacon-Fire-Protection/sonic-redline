@@ -162,7 +162,7 @@ export default function Submit() {
                 onChange={e => setPreviousText(e.target.value)}
                 placeholder="Previous version…"
                 rows={10}
-                className="w-full bg-[#111] border border-[#FF2D2D]/20 px-4 py-4 text-white placeholder-white/20 resize-none focus:outline-none focus:border-[#FF2D2D]/40 transition-colors leading-relaxed font-mono text-sm"
+                className="w-full bg-[#1A1A1A] border border-[#FF2D2D]/20 px-4 py-4 text-white placeholder-white/20 resize-none focus:outline-none focus:border-[#FF2D2D]/40 transition-colors leading-relaxed font-mono text-sm"
               />
             </div>
           )}
