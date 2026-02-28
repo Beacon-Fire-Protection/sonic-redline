@@ -33,10 +33,10 @@ export default function Layout({ children, currentPageName }) {
   const showTabs = !NO_TAB_PAGES.includes(currentPageName);
 
   return (
-    <div className="flex flex-col bg-[#1A1A1A] min-h-screen" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+    <div className="flex flex-col bg-[#0D0D0D] min-h-screen" style={{ paddingTop: "env(safe-area-inset-top)" }}>
       <style>{`
         * { -webkit-tap-highlight-color: transparent; }
-        body { overscroll-behavior: none; background: #1A1A1A; }
+        body { overscroll-behavior: none; background: #0D0D0D; }
         .pb-safe { padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
       `}</style>
 
