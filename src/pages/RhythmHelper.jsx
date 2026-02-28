@@ -123,7 +123,7 @@ export default function RhythmHelper() {
         )}
 
         {/* Reference */}
-        <div className="mt-10 p-4 rounded-xl bg-[#141417] border border-white/8">
+        <div className="mt-10 p-4 bg-[#111] border border-white/8">
           <div className="text-xs uppercase tracking-widest text-white/25 mb-3 select-none">Quick Reference</div>
           <div className="space-y-1.5">
             {[
