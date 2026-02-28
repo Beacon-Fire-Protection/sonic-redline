@@ -43,7 +43,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Top header bar */}
       <header className="flex items-center justify-between bg-[#111] border-b border-white/8 h-14 px-4 flex-shrink-0">
         <Link to={createPageUrl("Home")}>
-          <img src={LOGO} alt="Sonic Redline" className="h-10 w-auto object-contain" />
+          <img src={LOGO} alt="Sonic Redline" className="h-40 w-auto object-contain" />
         </Link>
         <span className="text-xs font-bold tracking-[0.2em] uppercase text-white/40">
           {PAGE_NAMES[currentPageName] || currentPageName}
