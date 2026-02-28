@@ -74,7 +74,7 @@ export default function RhythmHelper() {
             onClick={analyze}
             disabled={loading || !sentence.trim()}
             className="px-5 py-3 rounded-xl text-sm font-medium select-none transition-all disabled:opacity-30"
-            style={{ background: "linear-gradient(135deg, #7c3aed, #6d28d9)", color: "#fff" }}
+            style={{ background: "#FF2D2D", color: "#fff" }}
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Scan"}
           </button>
