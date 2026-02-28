@@ -52,10 +52,10 @@ import Collection from './pages/Collection';
 import Dashboard from './pages/Dashboard';
 import History from './pages/History';
 import Home from './pages/Home';
+import Profile from './pages/Profile';
 import RhythmHelper from './pages/RhythmHelper';
 import Settings from './pages/Settings';
 import Submit from './pages/Submit';
-import Profile from './pages/Profile';
 import __Layout from './Layout.jsx';
 
 
@@ -65,10 +65,10 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "History": History,
     "Home": Home,
+    "Profile": Profile,
     "RhythmHelper": RhythmHelper,
     "Settings": Settings,
     "Submit": Submit,
-    "Profile": Profile,
 }
 
 export const pagesConfig = {
