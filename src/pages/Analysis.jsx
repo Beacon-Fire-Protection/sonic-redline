@@ -235,7 +235,7 @@ export default function Analysis() {
       </div>
 
       {/* Bottom actions */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#1A1A1A] border-t border-white/8 p-4 pb-safe">
+      <div className="fixed bottom-0 left-0 right-0 bg-[#0D0D0D] border-t border-white/8 p-4 pb-safe">
         <div className="max-w-2xl mx-auto grid grid-cols-3 gap-3">
           <button
             onClick={handleRevision}
