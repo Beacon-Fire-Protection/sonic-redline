@@ -1,121 +1,130 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Code2, Zap, Rocket, ChevronDown, Sparkles } from 'lucide-react';
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { Home, BookOpen, User, Music } from "lucide-react";
 
-export default function HeroSection() {
-  const scrollToAbout = () => {
-    document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
-  };
+const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
 
-  const scrollToServices = () => {
-    document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
-  };
+const PAGE_NAMES = {
+  Home: "Home",
+  Submit: "Analyze",
+  Collection: "Saved Poems",
+  Profile: "Profile",
+  RhythmHelper: "Rhythm",
+  Analysis: "Analysis",
+};
+
+const tabs = [
+  { name: "Home", label: "Home", icon: Home },
+  { name: "Submit", label: "Analyze", icon: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square" strokeLinejoin="miter">
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  )},
+  { name: "Collection", label: "Saved", icon: BookOpen },
+  { name: "RhythmHelper", label: "Rhythm", icon: Music },
+  { name: "Profile", label: "Profile", icon: User },
+];
+
+const NO_TAB_PAGES = ["Analysis"];
+const ACTIVE_COLOR = "#FF3399";      // Hot pink
+const INACTIVE_COLOR = "#C084FC";    // Soft purple
+const BG_DARK = "#1a0f2e";           // Deep purple
+const BG_LIGHT = "#f3e8ff";          // Lavender
+const ACCENT_AQUA = "#06b6d4";       // Bright aqua
+const MINT_GREEN = "#10b981";        // Mint
+
+export default function Layout({ children, currentPageName }) {
+  const showTabs = !NO_TAB_PAGES.includes(currentPageName);
 
   return (
-    <section className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden">
-      {/* Animated grid background */}
-      <div className="absolute inset-0">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `linear-gradient(rgba(0,255,255,.03) 1px, transparent 1px),
-                           linear-gradient(90deg, rgba(0,255,255,.03) 1px, transparent 1px)`,
-            backgroundSize: '50px 50px',
-            animation: 'gridMove 20s linear infinite',
-          }}
-        />
-      </div>
-
-      {/* Glowing accents */}
-      <div className="absolute top-20 left-20 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse" />
-      <div
-        className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: '1s' }}
-      />
-
-      <div className="relative z-10 max-w-6xl mx-auto px-6 text-center pt-12 md:pt-0">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full mb-8 backdrop-blur-sm">
-            <Sparkles className="w-4 h-4 text-cyan-400" />
-            <span className="text-cyan-400 text-sm font-medium">Beacon Projects</span>
-          </div>
-
-          {/* Main heading */}
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            Strategy + Build<br />
-            <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              for Small Business Growth
-            </span>
-          </h1>
-
-          {/* Subheading */}
-          <p className="text-xl text-gray-400 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Beacon Projects helps small businesses get clarity, streamline operations,
-            and ship what matters—through strategic consulting, custom software, and rapid prototyping.
-          </p>
-
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
-            <a
-              href="#contact"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-200 hover:bg-cyan-500/25 transition-colors backdrop-blur-sm"
-            >
-              Book a Discovery Call
-            </a>
-
-            <button
-              onClick={scrollToServices}
-              className="inline-flex items-center justify-center px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-gray-200 hover:bg-white/10 transition-colors"
-            >
-              Explore Services
-            </button>
-          </div>
-
-          {/* Service pillars */}
-          <div className="flex flex-wrap gap-6 justify-center mt-12">
-            <div className="flex items-center gap-2 text-gray-300">
-              <Rocket className="w-5 h-5 text-cyan-400" />
-              <span>Small Business Strategic Consulting</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-300">
-              <Code2 className="w-5 h-5 text-purple-400" />
-              <span>Custom Software Development</span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-300">
-              <Zap className="w-5 h-5 text-pink-400" />
-              <span>Rapid Prototyping</span>
-            </div>
-          </div>
-
-          <p className="text-sm text-gray-500 mt-6">
-            Practical plans • Fast execution • Built for real-world operations
-          </p>
-        </motion.div>
-
-        {/* Scroll indicator */}
-        <motion.button
-          onClick={scrollToAbout}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-gray-600 hover:text-cyan-400 transition-colors"
-          aria-label="Scroll to about section"
-        >
-          <ChevronDown className="w-8 h-8 animate-bounce" />
-        </motion.button>
-      </div>
-
+    <div className="flex flex-col min-h-screen" style={{ 
+      background: `linear-gradient(135deg, ${BG_DARK} 0%, #2d1b4e 100%)`,
+      paddingTop: "env(safe-area-inset-top)",
+      color: "#f3e8ff"
+    }}>
       <style>{`
-        @keyframes gridMove {
-          0% { transform: translateY(0); }
-          100% { transform: translateY(50px); }
+        * { -webkit-tap-highlight-color: transparent; }
+        body { 
+          overscroll-behavior: none; 
+          background: linear-gradient(135deg, #1a0f2e 0%, #2d1b4e 100%);
+        }
+        .pb-safe { padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
+        
+        /* Magical shimmer effect on header */
+        .header-shimmer {
+          background: linear-gradient(90deg, rgba(255, 51, 153, 0.1) 0%, rgba(6, 182, 212, 0.1) 50%, rgba(255, 51, 153, 0.1) 100%);
+          animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
         }
       `}</style>
-    </section>
+
+      {/* Top header bar with magical gradient */}
+      <header className="flex items-center justify-between border-b h-44 px-4 flex-shrink-0 header-shimmer" style={{
+        borderColor: `${ACCENT_AQUA}40`,
+        background: `linear-gradient(90deg, rgba(255, 51, 153, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%)`
+      }}>
+        <Link to={createPageUrl("Home")}>
+          <img src={LOGO} alt="Sonic Redline" className="h-40 w-auto object-contain drop-shadow-lg" style={{
+            filter: "drop-shadow(0 0 20px rgba(255, 51, 153, 0.3))"
+          }} />
+        </Link>
+        <span className="text-xs font-bold tracking-[0.2em] uppercase" style={{
+          color: ACCENT_AQUA,
+          textShadow: `0 0 10px ${ACTIVE_COLOR}40`
+        }}>
+          {PAGE_NAMES[currentPageName] || currentPageName}
+        </span>
+      </header>
+
+      <main
+        className="flex-1 overflow-y-auto"
+        style={{ paddingBottom: showTabs ? "calc(4.5rem + env(safe-area-inset-bottom))" : "env(safe-area-inset-bottom)" }}
+      >
+        {children}
+      </main>
+
+      {showTabs && (
+        <nav
+          className="fixed bottom-0 left-0 right-0 border-t flex select-none z-50"
+          style={{ 
+            paddingBottom: "env(safe-area-inset-bottom)",
+            background: `linear-gradient(180deg, rgba(45, 27, 78, 0.95) 0%, rgba(26, 15, 46, 0.98) 100%)`,
+            borderColor: `${ACCENT_AQUA}40`,
+            backdropFilter: "blur(10px)"
+          }}
+        >
+          {tabs.map(({ name, label, icon: Icon }) => {
+            const active = currentPageName === name || (currentPageName === "Submit" && name === "Submit");
+            return (
+              <Link
+                key={name}
+                to={createPageUrl(name)}
+                className="flex-1 flex flex-col items-center justify-center pt-3 pb-2.5 gap-1 transition-all active:opacity-60 hover:opacity-80"
+                style={{
+                  background: active ? `${ACTIVE_COLOR}15` : "transparent",
+                  borderRadius: active ? "12px 12px 0 0" : "0"
+                }}
+              >
+                <Icon style={{ 
+                  color: active ? ACTIVE_COLOR : INACTIVE_COLOR,
+                  filter: active ? `drop-shadow(0 0 8px ${ACTIVE_COLOR}60)` : "none",
+                  transition: "all 0.3s ease"
+                }} />
+                <span className="text-[10px] font-bold tracking-wider uppercase" style={{ 
+                  color: active ? ACTIVE_COLOR : INACTIVE_COLOR,
+                  textShadow: active ? `0 0 6px ${ACTIVE_COLOR}40` : "none",
+                  transition: "all 0.3s ease"
+                }}>
+                  {label}
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
+      )}
+    </div>
   );
 }
