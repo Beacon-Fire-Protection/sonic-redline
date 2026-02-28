@@ -21,53 +21,87 @@ export default function Profile() {
   }, []);
 
   if (loading) return (
-    <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center">
-      <Loader2 className="w-6 h-6 text-white/30 animate-spin" />
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+      <Loader2 className="w-6 h-6 animate-spin" style={{ color: "hsl(var(--muted-foreground))" }} />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] text-white">
-      <div className="px-4 pt-10 pb-5 border-b border-white/8">
+    <div className="min-h-screen text-foreground" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+      <style>{`
+        .profile-header {
+          background-color: hsl(var(--background));
+          border-color: hsl(var(--border));
+        }
+        .profile-muted-text {
+          color: hsl(var(--muted-foreground));
+        }
+        .profile-card {
+          background-color: hsl(var(--card));
+          border-color: hsl(var(--border));
+        }
+        .profile-badge {
+          background-color: hsl(var(--primary));
+          color: hsl(var(--primary-foreground));
+        }
+        .profile-button {
+          border-color: hsl(var(--border));
+          color: hsl(var(--muted-foreground));
+          transition: all 0.3s ease;
+        }
+        .profile-button:hover {
+          color: hsl(var(--foreground));
+          border-color: hsl(var(--primary) / 0.5);
+          background-color: hsl(var(--primary) / 0.05);
+        }
+        .profile-divider {
+          border-color: hsl(var(--border));
+        }
+        .profile-logo {
+          opacity: 0.6;
+        }
+      `}</style>
+
+      <div className="px-4 pt-10 pb-5 border-b profile-header">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-2 mb-1">
-            <img src={LOGO} alt="" className="w-5 h-5 object-contain opacity-60" />
-            <span className="text-xs tracking-[0.2em] uppercase text-white/30">Sonic Redline</span>
+            <img src={LOGO} alt="" className="profile-logo w-5 h-5 object-contain" />
+            <span className="text-xs tracking-[0.2em] uppercase profile-muted-text">Sonic Redline</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Profile</h1>
+          <h1 className="text-2xl font-bold" style={{ color: "hsl(var(--accent))" }}>Profile</h1>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         {/* Account */}
-        <div className="border border-white/8 p-5">
-          <div className="text-xs uppercase tracking-[0.2em] text-white/30 mb-3">Account</div>
+        <div className="profile-card border p-5">
+          <div className="text-xs uppercase tracking-[0.2em] profile-muted-text mb-3">Account</div>
           {user ? (
             <div className="space-y-1">
-              <div className="text-white font-bold">{user.full_name || "Poet"}</div>
-              <div className="text-white/40 text-sm">{user.email}</div>
-              <div className="mt-3 inline-block px-2.5 py-1 text-xs font-bold tracking-widest uppercase" style={{ background: "#FF2D2D", color: "#fff" }}>
+              <div className="text-foreground font-bold">{user.full_name || "Poet"}</div>
+              <div className="profile-muted-text text-sm">{user.email}</div>
+              <div className="mt-3 inline-block profile-badge px-2.5 py-1 text-xs font-bold tracking-widest uppercase">
                 {user.role === "admin" ? "Admin" : "Free"}
               </div>
             </div>
           ) : (
-            <div className="text-white/40 text-sm">Not signed in</div>
+            <div className="profile-muted-text text-sm">Not signed in</div>
           )}
         </div>
 
         {/* Rhythm Reference */}
-        <div className="border border-white/8 p-5">
-          <div className="text-xs uppercase tracking-[0.2em] text-white/30 mb-4">Rhythm Reference</div>
+        <div className="profile-card border p-5">
+          <div className="text-xs uppercase tracking-[0.2em] profile-muted-text mb-4">Rhythm Reference</div>
           <div className="space-y-3">
             {RHYTHM_REF.map(([name, pattern]) => (
               <div key={name} className="flex justify-between items-baseline gap-4">
-                <span className="text-white/60 text-sm font-bold">{name}</span>
-                <span className="text-white/30 text-xs font-mono tracking-wide text-right">{pattern}</span>
+                <span className="text-foreground text-sm font-bold">{name}</span>
+                <span className="profile-muted-text text-xs font-mono tracking-wide text-right">{pattern}</span>
               </div>
             ))}
           </div>
-          <div className="mt-4 pt-4 border-t border-white/8 text-xs text-white/25">
-            <strong className="text-white/40">DUM</strong> = stressed · <strong className="text-white/40">da</strong> = unstressed
+          <div className="mt-4 pt-4 profile-divider border-t text-xs profile-muted-text">
+            <strong style={{ color: "hsl(var(--foreground))" }}>DUM</strong> = stressed · <strong style={{ color: "hsl(var(--foreground))" }}>da</strong> = unstressed
           </div>
         </div>
 
@@ -75,7 +109,7 @@ export default function Profile() {
         {user && (
           <button
             onClick={() => base44.auth.logout()}
-            className="w-full py-3 text-xs font-bold tracking-[0.15em] uppercase text-white/40 hover:text-white/70 border border-white/10 hover:border-white/25 transition-colors"
+            className="profile-button w-full py-3 text-xs font-bold tracking-[0.15em] uppercase border"
           >
             Sign Out
           </button>
