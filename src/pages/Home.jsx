@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
-const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
+const LOGO =
+  "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
 
 export default function Home() {
   return (
     <div
-      className="h-screen text-foreground flex items-center justify-center px-6"
+      className="h-dvh overflow-hidden text-foreground flex items-center justify-center px-6"
       style={{
         background:
           "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)",
