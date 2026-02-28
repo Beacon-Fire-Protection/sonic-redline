@@ -6,7 +6,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 html, body {
-  overscroll-behavior: none;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   background: whitesmoke;
   font-family: 'Inter', system-ui, sans-serif;
