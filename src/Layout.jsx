@@ -83,7 +83,7 @@ export default function Layout({ children, currentPageName }) {
           <img
             src={LOGO}
             alt="Sonic Redline"
-            className="h-40 w-auto object-contain drop-shadow-lg"
+            className="h-10 w-auto object-contain drop-shadow-lg"
             style={{
               filter: "drop-shadow(0 0 20px rgba(255, 51, 153, 0.3))",
             }}
