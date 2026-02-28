@@ -82,7 +82,7 @@ export default function RhythmHelper() {
 
         {/* Result */}
         {result && style && (
-          <div className={`rounded-2xl border ${style.border} bg-gradient-to-br ${style.bg} p-6 space-y-6`}>
+          <div className={`border ${style.border} bg-gradient-to-br ${style.bg} p-6 space-y-6`}>
             {/* Meter + confidence */}
             <div className="flex items-center justify-between">
               <div>
