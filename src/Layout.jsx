@@ -23,6 +23,7 @@ const tabs = [
 ];
 
 const NO_TAB_PAGES = ["Analysis"];
+
 const ACTIVE_COLOR = "#FF3399";
 const INACTIVE_COLOR = "#C084FC";
 const BG_DARK = "#1a0f2e";
@@ -33,7 +34,7 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div
-      className="flex flex-col h-dvh overflow-hidden"
+      className="flex flex-col h-dvh"
       style={{
         background: `linear-gradient(135deg, ${BG_DARK} 0%, #2d1b4e 100%)`,
         paddingTop: "env(safe-area-inset-top)",
@@ -43,29 +44,39 @@ export default function Layout({ children, currentPageName }) {
       <style>{`
         * { -webkit-tap-highlight-color: transparent; }
 
-        html, body { height: 100%; margin: 0; }
+        html, body {
+          margin: 0;
+          height: 100%;
+        }
+
         body {
           overscroll-behavior: none;
           background: linear-gradient(135deg, #1a0f2e 0%, #2d1b4e 100%);
         }
 
-        .pb-safe { padding-bottom: calc(1rem + env(safe-area-inset-bottom)); }
-
         .header-shimmer {
-          background: linear-gradient(90deg, rgba(255, 51, 153, 0.1) 0%, rgba(6, 182, 212, 0.1) 50%, rgba(255, 51, 153, 0.1) 100%);
+          background: linear-gradient(
+            90deg,
+            rgba(255, 51, 153, 0.1) 0%,
+            rgba(6, 182, 212, 0.1) 50%,
+            rgba(255, 51, 153, 0.1) 100%
+          );
           animation: shimmer 3s infinite;
         }
+
         @keyframes shimmer {
           0%, 100% { opacity: 0.5; }
           50% { opacity: 1; }
         }
       `}</style>
 
+      {/* Header */}
       <header
         className="flex items-center justify-between border-b h-44 px-4 flex-shrink-0 header-shimmer"
         style={{
           borderColor: `${ACCENT_AQUA}40`,
-          background: `linear-gradient(90deg, rgba(255, 51, 153, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%)`,
+          background:
+            "linear-gradient(90deg, rgba(255, 51, 153, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%)",
         }}
       >
         <Link to={createPageUrl("Home")}>
@@ -78,6 +89,7 @@ export default function Layout({ children, currentPageName }) {
             }}
           />
         </Link>
+
         <span
           className="text-xs font-bold tracking-[0.2em] uppercase"
           style={{
@@ -89,31 +101,34 @@ export default function Layout({ children, currentPageName }) {
         </span>
       </header>
 
+      {/* Main scroll area */}
       <main
-        className="flex-1 overflow-hidden"
+        className="flex-1 overflow-y-auto overflow-x-hidden"
         style={{
           paddingBottom: showTabs
             ? "calc(6rem + env(safe-area-inset-bottom))"
             : "env(safe-area-inset-bottom)",
+          WebkitOverflowScrolling: "touch",
         }}
       >
         {children}
       </main>
 
+      {/* Bottom Tabs */}
       {showTabs && (
         <nav
           className="fixed bottom-0 left-0 right-0 border-t flex select-none z-50"
           style={{
             paddingBottom: "calc(env(safe-area-inset-bottom) + 0.5rem)",
-            background: `linear-gradient(180deg, rgba(45, 27, 78, 0.95) 0%, rgba(26, 15, 46, 0.98) 100%)`,
+            background:
+              "linear-gradient(180deg, rgba(45, 27, 78, 0.95) 0%, rgba(26, 15, 46, 0.98) 100%)",
             borderColor: `${ACCENT_AQUA}40`,
             backdropFilter: "blur(10px)",
           }}
         >
           {tabs.map(({ name, label, icon: Icon }) => {
-            const active =
-              currentPageName === name ||
-              (currentPageName === "Submit" && name === "Submit");
+            const active = currentPageName === name;
+
             return (
               <Link
                 key={name}
