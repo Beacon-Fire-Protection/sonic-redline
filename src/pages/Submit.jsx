@@ -109,11 +109,6 @@ export default function Submit() {
   return (
     <div className="min-h-screen bg-[#0D0D0D] text-white px-4 py-10">
       <div className="max-w-2xl mx-auto">
-        <div className="flex items-center gap-3 mb-10">
-          <img src={LOGO} alt="Sonic Redline" className="w-8 h-8 object-contain" />
-          <span className="text-xs tracking-[0.25em] uppercase text-white/40">Sonic Redline</span>
-        </div>
-
         <h1 className="text-3xl font-bold text-white mb-8 tracking-tight">Analyze a Poem</h1>
 
         <div className="space-y-5">
