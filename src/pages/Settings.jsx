@@ -17,72 +17,126 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0D0D0F] text-white px-4 py-12">
+    <div className="min-h-screen text-white px-4 py-12" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+      <style>{`
+        .settings-card {
+          background-color: hsl(var(--card));
+          border-color: hsl(var(--border));
+        }
+        .settings-card-divider {
+          border-color: hsl(var(--border));
+        }
+        .settings-icon-accent {
+          color: hsl(var(--accent));
+        }
+        .settings-text-secondary {
+          color: hsl(var(--muted-foreground));
+        }
+        .settings-text-muted {
+          color: hsl(var(--muted-foreground));
+        }
+        .settings-hover:hover {
+          background-color: hsl(var(--accent) / 0.05);
+        }
+        .settings-danger-zone {
+          background-color: hsl(var(--primary) / 0.08);
+          border-color: hsl(var(--primary) / 0.2);
+        }
+        .settings-danger-header {
+          border-color: hsl(var(--primary) / 0.2);
+        }
+        .settings-danger-text {
+          color: hsl(var(--primary) / 0.7);
+        }
+        .settings-delete-button-default {
+          background-color: hsl(var(--primary) / 0.1);
+          border-color: hsl(var(--primary) / 0.3);
+          color: hsl(var(--primary));
+          transition: all 0.2s ease;
+        }
+        .settings-delete-button-confirm {
+          background-color: hsl(var(--primary) / 0.3);
+          border-color: hsl(var(--primary));
+          color: hsl(var(--primary));
+        }
+        .settings-delete-button-default:hover,
+        .settings-delete-button-confirm:hover {
+          filter: brightness(1.1);
+          box-shadow: 0 0 12px hsl(var(--primary) / 0.3);
+        }
+        .settings-cancel-button {
+          color: hsl(var(--muted-foreground));
+          transition: color 0.2s ease;
+        }
+        .settings-cancel-button:hover {
+          color: hsl(var(--foreground));
+        }
+      `}</style>
+
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-3 mb-10">
-          <SettingsIcon className="w-5 h-5 text-amber-400/70" />
-          <h1 className="text-2xl font-light text-white">Settings</h1>
+          <SettingsIcon className="w-5 h-5 settings-icon-accent" />
+          <h1 className="text-2xl font-light text-foreground">Settings</h1>
         </div>
 
         {/* About */}
-        <div className="mb-6 rounded-2xl border border-white/8 bg-[#141417] divide-y divide-white/5">
+        <div className="mb-6 rounded-2xl border settings-card divide-y settings-card-divider">
           <div className="px-5 py-4 flex items-center gap-3">
-            <BookOpen className="w-4 h-4 text-amber-400/60" />
+            <BookOpen className="w-4 h-4 settings-icon-accent" />
             <div>
-              <div className="text-sm text-white/80">Metrical Muse</div>
-              <div className="text-xs text-white/30 mt-0.5">Pentameter analyzer for poetry lovers</div>
+              <div className="text-sm text-foreground">Metrical Muse</div>
+              <div className="text-xs settings-text-muted mt-0.5">Pentameter analyzer for poetry lovers</div>
             </div>
           </div>
           <div className="px-5 py-4 flex items-center gap-3">
-            <Info className="w-4 h-4 text-white/30" />
+            <Info className="w-4 h-4 settings-text-muted" />
             <div>
-              <div className="text-xs text-white/30">Version 1.0</div>
+              <div className="text-xs settings-text-muted">Version 1.0</div>
             </div>
           </div>
         </div>
 
         {/* Clear History */}
-        <div className="mb-6 rounded-2xl border border-white/8 bg-[#141417]">
+        <div className="mb-6 rounded-2xl border settings-card">
           <button
             onClick={() => { localStorage.removeItem("meter_history"); }}
-            className="w-full px-5 py-4 text-left flex items-center justify-between select-none hover:bg-white/5 transition-colors rounded-2xl"
+            className="w-full px-5 py-4 text-left flex items-center justify-between select-none settings-hover transition-colors rounded-2xl"
           >
-            <span className="text-sm text-white/70">Clear Analysis History</span>
-            <Trash2 className="w-4 h-4 text-white/30" />
+            <span className="text-sm settings-text-secondary">Clear Analysis History</span>
+            <Trash2 className="w-4 h-4 settings-text-muted" />
           </button>
         </div>
 
         {/* Danger Zone */}
-        <div className="rounded-2xl border border-red-900/40 bg-red-950/20">
-          <div className="px-5 py-3 border-b border-red-900/30">
-            <span className="text-xs uppercase tracking-widest text-red-500/60 font-medium">Danger Zone</span>
+        <div className="rounded-2xl border settings-danger-zone">
+          <div className="px-5 py-3 border-b settings-danger-header">
+            <span className="text-xs uppercase tracking-widest settings-danger-text font-medium">Danger Zone</span>
           </div>
           <div className="px-5 py-4">
-            <p className="text-sm text-white/40 mb-4 leading-relaxed">
+            <p className="text-sm settings-text-secondary mb-4 leading-relaxed">
               Permanently delete your account and all associated data. This action cannot be undone.
             </p>
             {deleted ? (
-              <p className="text-sm text-red-400">Account deletion initiated. Logging out…</p>
+              <p className="text-sm text-primary">Account deletion initiated. Logging out…</p>
             ) : (
-              <button
-                onClick={handleDeleteAccount}
-                className="w-full py-3 rounded-xl text-sm font-medium tracking-wide select-none transition-all duration-200"
-                style={{
-                  background: confirmDelete ? "#7f1d1d" : "#1a0a0a",
-                  border: "1px solid #7f1d1d",
-                  color: confirmDelete ? "#fca5a5" : "#ef4444",
-                }}
-              >
-                {confirmDelete ? "Tap again to confirm deletion" : "Delete Account"}
-              </button>
-            )}
-            {confirmDelete && !deleted && (
-              <button
-                onClick={() => setConfirmDelete(false)}
-                className="w-full mt-2 py-2 text-xs text-white/30 hover:text-white/50 transition-colors select-none"
-              >
-                Cancel
-              </button>
+              <>
+                <button
+                  onClick={handleDeleteAccount}
+                  className={`w-full py-3 rounded-xl text-sm font-medium tracking-wide select-none border ${
+                    confirmDelete ? "settings-delete-button-confirm" : "settings-delete-button-default"
+                  }`}
+                >
+                  {confirmDelete ? "Tap again to confirm deletion" : "Delete Account"}
+                </button>
+                {confirmDelete && !deleted && (
+                  <button
+                    onClick={() => setConfirmDelete(false)}
+                    className="settings-cancel-button w-full mt-2 py-2 text-xs select-none"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>
