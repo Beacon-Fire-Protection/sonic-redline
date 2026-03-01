@@ -2,119 +2,149 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { Loader2, Clipboard } from "lucide-react";
-
-const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
+import { Loader2 } from "lucide-react";
 
 const SYSTEM_PROMPT = `You are Sonic Redline, a brutally honest poetry editor. You analyze structure, sound, and syntax. You never suggest what to write. You never flatter. You never summarize theme. You are not a book reviewer. You are not a cheerleader. You are a structural engineer inspecting a building.
 
 ABSOLUTE RULES — VIOLATION OF ANY OF THESE IS A FAILURE
+1. You do NOT write new lines. You do NOT rewrite. You do NOT suggest replacement text.
+2. You do NOT summarize theme, message, or emotional content.
+3. You do NOT use encouragement words (e.g., "lovely," "beautiful," "powerful," "evocative").
+4. You analyze STRUCTURE, SYNTAX, SOUND, and PRECISION only.
+5. Every note must cite the specific line number and quote the exact phrase.
+6. You flag three levels: GREEN = working as intended, YELLOW = structural risk, RED = structural failure.
+7. Be brief. Be precise. No padding. No vague adjectives.
 
-Rule 1: NEVER SUGGEST CONTENT. Do NOT suggest alternative words, phrases, lines, or structures. Do NOT say "consider," "perhaps," "you might," "try," or "it would help to." If you catch yourself about to recommend a change, STOP. Describe the problem only.
-
-Rule 2: NEVER SUMMARIZE THEME. Do NOT write "this line suggests hope" or "emphasizes universality." DO analyze HOW lines are built: their rhythm, their sound, their syntax, their compression, their register.
-
-Rule 3: SCORING. Calculate an OBJECTIVE score based on flag proportions. Give a SUBJECTIVE score based on overall sonic quality, structural coherence, voice consistency, and compression. Report both and a COMBINED score (average, rounded to nearest 0.5). If tempted to give combined above 7 on first submission, recheck every line.
-
-Rule 4: FLAG EVERY LINE. Every single line gets RED, YELLOW, or GREEN. No exceptions.
-
-Rule 5: CATCH TYPOS. Misspellings, missing words, wrong words — all are RED. Always.
-
-RED — typo/error, garbled syntax, rhythm fights content, meaning lost, abstract where surrounding lines are concrete.
-YELLOW — soft phrasing, rhythm flat, functional but underperforming, unusual grammar that may be unintentional.
-GREEN — compression, sonic texture, concrete imagery, register consistent, rhythm serves content.
-
-For each line analyze: Sound-craft (stress patterns, assonance, consonance, alliteration), Syntax (sentence structure, clauses, passive constructions), Imagery (concrete vs abstract, specificity), Rhythm (meter, breaks, energy), Register (formal/informal, consistency).
-
-After line analysis: identify structural movements. Then flag counts and all three scores. Then revision targets (RED first, then YELLOW, description only — no fixes).`;
+OUTPUT FORMAT — You must return valid JSON only:
+{
+  "score_objective": <number 1–10>,
+  "score_subjective": <number 1–10>,
+  "score_combined": <number 1–10>,
+  "lines": [
+    {
+      "number": <line number>,
+      "text": "<exact line text>",
+      "flag": "RED" | "YELLOW" | "GREEN",
+      "analysis": "<one concise sentence about structure/sound/syntax>"
+    }
+  ],
+  "structural_movements": "<2–4 sentences on overall structural arc>",
+  "remaining_targets": "<2–4 sentences on the top structural issues to address>",
+  "what_changed": "<only if revision: 2–3 sentences on what structurally changed>",
+  "comparison_scorecard": "<only if revision: short scorecard comparing versions>"
+}`;
 
 export default function Submit() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [version, setVersion] = useState("1");
-  const [poemText, setPoemText] = useState("");
+  const [poem, setPoem] = useState("");
   const [isRevision, setIsRevision] = useState(false);
   const [previousText, setPreviousText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [titleError, setTitleError] = useState("");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const prefillPrev = params.get("previous");
-    const prefillTitle = params.get("title");
-    const prefillVersion = params.get("version");
-    if (prefillPrev) { setPreviousText(decodeURIComponent(prefillPrev)); setIsRevision(true); }
-    if (prefillTitle) setTitle(decodeURIComponent(prefillTitle));
-    if (prefillVersion) setVersion(prefillVersion);
+    if (params.get("previous")) setPreviousText(decodeURIComponent(params.get("previous")));
+    if (params.get("title")) setTitle(decodeURIComponent(params.get("title")));
+    if (params.get("version")) setVersion(decodeURIComponent(params.get("version")));
+    if (params.get("previous")) setIsRevision(true);
   }, []);
 
   const handleSubmit = async () => {
-    if (!poemText.trim()) { setError("Please paste your poem."); return; }
+    if (!poem.trim()) { setError("Please enter a poem."); return; }
+    if (!title.trim()) { setError("Please enter a title."); return; }
+
     setError("");
+    setTitleError("");
     setLoading(true);
 
-    const promptText = isRevision && previousText.trim()
-      ? `Analyze this revision:\n\nTitle: ${title || "Untitled"}\nVersion: ${version || "1"}\n\nCURRENT VERSION:\n${poemText}\n\nPREVIOUS VERSION:\n${previousText}`
-      : `Analyze this poem:\n\nTitle: ${title || "Untitled"}\nVersion: ${version || "1"}\n\n${poemText}`;
+    // Check for duplicate title (only for new poems, not revisions)
+    if (!isRevision) {
+      try {
+        const existing = await base44.entities.PoemAnalysis.filter({ title: title.trim() });
+        if (existing.length > 0) {
+          setTitleError(`A poem named "${title.trim()}" already exists. Please choose a unique title.`);
+          setLoading(false);
+          return;
+        }
+      } catch (e) {
+        // If check fails, proceed anyway
+      }
+    }
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: SYSTEM_PROMPT + "\n\n---\n\n" + promptText,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          score_objective: { type: "number" },
-          score_subjective: { type: "number" },
-          score_combined: { type: "number" },
-          lines: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                number: { type: "number" },
-                text: { type: "string" },
-                flag: { type: "string" },
-                analysis: { type: "string" },
+    const prompt = `${SYSTEM_PROMPT}
+
+POEM TITLE: ${title}
+VERSION: ${version}
+${isRevision && previousText ? `PREVIOUS VERSION:\n${previousText}\n\nNEW VERSION:\n${poem}` : `POEM:\n${poem}`}
+
+Return only valid JSON.`;
+
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            score_objective: { type: "number" },
+            score_subjective: { type: "number" },
+            score_combined: { type: "number" },
+            lines: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  number: { type: "number" },
+                  text: { type: "string" },
+                  flag: { type: "string" },
+                  analysis: { type: "string" },
+                },
               },
             },
+            structural_movements: { type: "string" },
+            remaining_targets: { type: "string" },
+            what_changed: { type: "string" },
+            comparison_scorecard: { type: "string" },
           },
-          structural_movements: { type: "string" },
-          what_changed: { type: "string" },
-          comparison_scorecard: { type: "string" },
-          remaining_targets: { type: "string" },
         },
-      },
-    });
+      });
 
-    const redCount = result.lines?.filter(l => l.flag === "RED").length || 0;
-    const yellowCount = result.lines?.filter(l => l.flag === "YELLOW").length || 0;
-    const greenCount = result.lines?.filter(l => l.flag === "GREEN").length || 0;
+      const redCount = result.lines?.filter(l => l.flag === "RED").length || 0;
+      const yellowCount = result.lines?.filter(l => l.flag === "YELLOW").length || 0;
+      const greenCount = result.lines?.filter(l => l.flag === "GREEN").length || 0;
 
-    const record = await base44.entities.PoemAnalysis.create({
-      title: title || "Untitled",
-      version_number: parseFloat(version) || 1,
-      poem_text: poemText,
-      previous_poem_text: isRevision ? previousText : "",
-      is_revision: isRevision,
-      analysis_raw: JSON.stringify(result),
-      poem_score: result.score_combined,
-      red_count: redCount,
-      yellow_count: yellowCount,
-      green_count: greenCount,
-      is_saved: false,
-    });
+      const saved = await base44.entities.PoemAnalysis.create({
+        title: title.trim(),
+        version_number: parseFloat(version) || 1,
+        poem_text: poem,
+        previous_poem_text: isRevision ? previousText : undefined,
+        is_revision: isRevision,
+        analysis_raw: JSON.stringify(result),
+        poem_score: result.score_combined,
+        red_count: redCount,
+        yellow_count: yellowCount,
+        green_count: greenCount,
+        is_saved: false,
+      });
 
-    setLoading(false);
-    navigate(createPageUrl(`Analysis?id=${record.id}`));
+      navigate(createPageUrl(`Analysis?id=${saved.id}`));
+    } catch (err) {
+      setError("Analysis failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="text-foreground px-4 py-6" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+    <div className="min-h-screen text-foreground px-4 py-10" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
       <style>{`
         .submit-input, .submit-textarea {
           background-color: hsl(var(--card) / 0.6);
           border-color: hsl(var(--border));
           color: hsl(var(--foreground));
-          border-radius: 0.75rem;
         }
         .submit-input::placeholder, .submit-textarea::placeholder {
           color: hsl(var(--muted-foreground) / 0.4);
@@ -124,25 +154,21 @@ export default function Submit() {
           outline: none;
           box-shadow: 0 0 0 2px hsl(var(--primary) / 0.15);
         }
+        .submit-input-error {
+          border-color: #EC4899 !important;
+          box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.2) !important;
+        }
         .submit-label {
           color: hsl(var(--muted-foreground));
         }
         .submit-toggle-container {
           background-color: hsl(var(--card) / 0.6);
           border-color: hsl(var(--border));
-          border-radius: 0.75rem;
-        }
-        .submit-toggle-inactive {
-          background-color: hsl(var(--border));
-        }
-        .submit-toggle-active {
-          background-color: hsl(var(--primary));
         }
         .submit-button-submit {
-          background: linear-gradient(135deg, hsl(var(--primary)) 0%, #a855f7 100%);
+          background-color: hsl(var(--primary));
           color: hsl(var(--primary-foreground));
           transition: all 0.3s ease;
-          border-radius: 0.75rem;
         }
         .submit-button-submit:hover:not(:disabled) {
           filter: brightness(1.15);
@@ -156,46 +182,45 @@ export default function Submit() {
         .submit-error {
           color: #EC4899;
         }
+        .submit-heading {
+          color: hsl(var(--primary));
+        }
       `}</style>
 
       <div className="max-w-2xl mx-auto">
-        <div className="flex items-center gap-2 mb-1">
-          <Clipboard className="w-6 h-6" style={{ color: "hsl(var(--primary))" }} />
-          <h1 className="text-2xl font-bold text-foreground">Analyze a Poem</h1>
-        </div>
-        <p className="text-sm mb-6 leading-relaxed" style={{ color: "hsl(var(--muted-foreground))" }}>
-          Paste your poem for a line-by-line structural analysis.
-        </p>
+        <h1 className="submit-heading text-3xl font-bold mb-8 tracking-tight">Analyze a Poem</h1>
 
-        <div className="space-y-4">
+        <div className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs uppercase tracking-widest mb-2 block submit-label">Title</label>
+              <label className="submit-label text-xs uppercase tracking-[0.15em] block mb-2">Title *</label>
               <input
                 value={title}
-                onChange={e => setTitle(e.target.value)}
-                placeholder="Untitled"
-                className="submit-input w-full border px-4 py-3 text-sm transition-colors"
+                onChange={e => { setTitle(e.target.value); setTitleError(""); }}
+                placeholder="Poem title…"
+                className={`submit-input w-full border px-4 py-3 text-sm ${titleError ? "submit-input-error" : ""}`}
+                disabled={isRevision}
               />
+              {titleError && <p className="submit-error text-xs mt-1">{titleError}</p>}
             </div>
             <div>
-              <label className="text-xs uppercase tracking-widest mb-2 block submit-label">Version</label>
+              <label className="submit-label text-xs uppercase tracking-[0.15em] block mb-2">Version</label>
               <input
                 value={version}
                 onChange={e => setVersion(e.target.value)}
                 placeholder="1"
-                className="submit-input w-full border px-4 py-3 text-sm transition-colors"
+                className="submit-input w-full border px-4 py-3 text-sm"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-xs uppercase tracking-widest mb-2 block submit-label">Paste your poem here</label>
+            <label className="submit-label text-xs uppercase tracking-[0.15em] block mb-2">Poem</label>
             <textarea
-              value={poemText}
-              onChange={e => setPoemText(e.target.value)}
-              placeholder="Begin here…"
-              rows={12}
+              value={poem}
+              onChange={e => setPoem(e.target.value)}
+              placeholder="Paste your poem here…"
+              rows={14}
               className="submit-textarea w-full border px-4 py-4 resize-none leading-relaxed font-mono text-sm transition-colors"
             />
           </div>
@@ -204,24 +229,24 @@ export default function Submit() {
             <span className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>Compare to previous version?</span>
             <button
               onClick={() => setIsRevision(!isRevision)}
-              className="relative w-11 h-6 transition-colors select-none rounded-full"
+              className="relative w-11 h-6 transition-colors select-none"
               style={{ backgroundColor: isRevision ? "hsl(var(--primary))" : "hsl(var(--border))" }}
             >
               <span
-                className="absolute top-1 w-4 h-4 bg-white transition-transform shadow rounded-full"
-                style={{ transform: isRevision ? "translateX(24px)" : "translateX(4px)" }}
+                className="absolute top-1 w-4 h-4 bg-white transition-transform shadow"
+                style={{ left: isRevision ? "calc(100% - 1.25rem)" : "0.25rem", transition: "left 0.2s" }}
               />
             </button>
           </div>
 
           {isRevision && (
             <div>
-              <label className="text-xs uppercase tracking-widest mb-2 block submit-label">Paste the previous version here</label>
+              <label className="submit-label text-xs uppercase tracking-[0.15em] block mb-2">Previous Version</label>
               <textarea
                 value={previousText}
                 onChange={e => setPreviousText(e.target.value)}
                 placeholder="Previous version…"
-                rows={8}
+                rows={10}
                 className="submit-textarea w-full border px-4 py-4 resize-none leading-relaxed font-mono text-sm transition-colors"
                 style={{ borderColor: "hsl(var(--primary) / 0.3)" }}
               />
@@ -232,7 +257,7 @@ export default function Submit() {
 
           <button
             onClick={handleSubmit}
-            disabled={loading || !poemText.trim()}
+            disabled={loading || !poem.trim() || !title.trim()}
             className="submit-button-submit w-full py-4 text-sm font-bold tracking-[0.15em] uppercase"
           >
             {loading ? (
@@ -240,7 +265,9 @@ export default function Submit() {
                 <Loader2 className="w-4 h-4 animate-spin" />
                 Analyzing…
               </span>
-            ) : "Analyze"}
+            ) : (
+              "Submit for Analysis"
+            )}
           </button>
         </div>
       </div>
