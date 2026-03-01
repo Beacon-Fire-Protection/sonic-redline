@@ -74,7 +74,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Header */}
       <header
-        className="flex items-center justify-between border-b h-14 px-4 flex-shrink-0 header-shimmer"
+        className="flex items-center justify-between border-b h-60 px-4 flex-shrink-0 header-shimmer"
         style={{
           borderColor: `${ACCENT_AQUA}40`,
           background:
