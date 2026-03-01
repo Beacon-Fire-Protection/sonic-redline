@@ -4,6 +4,8 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { ChevronRight, Loader2, Search, RefreshCw, BookOpen } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { useSubscription } from "@/components/useSubscription";
+import UpgradeCard from "@/components/UpgradeCard";
 
 function ScoreBadge({ score }) {
   const bg = score >= 7 ? "#10B981" : score >= 5 ? "#FBBF24" : "#EC4899";
@@ -21,6 +23,7 @@ export default function Collection() {
   const [expandedTitle, setExpandedTitle] = useState(null);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("date");
+  const { subscribed, loading: subLoading } = useSubscription();
 
   useEffect(() => {
     base44.entities.PoemAnalysis.list("-created_date", 200).then(data => {
@@ -50,11 +53,33 @@ export default function Collection() {
     entries.sort((a, b) => a[0].localeCompare(b[0]));
   }
 
-  if (loading) return (
+  if (loading || subLoading) return (
     <div className="h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
       <Loader2 className="w-6 h-6 animate-spin" style={{ color: "hsl(var(--muted-foreground))" }} />
     </div>
   );
+
+  // Non-subscriber: show upgrade wall
+  if (!subscribed) {
+    return (
+      <div className="text-foreground px-4 py-8" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center gap-2 mb-6">
+            <BookOpen className="w-5 h-5" style={{ color: "hsl(var(--primary))" }} />
+            <h1 className="text-xl font-bold text-foreground">Saved Poems</h1>
+          </div>
+          <div className="text-center py-12 mb-6">
+            <BookOpen className="w-12 h-12 mx-auto mb-4" style={{ color: "hsl(var(--primary) / 0.3)" }} />
+            <p className="text-base font-bold mb-2" style={{ color: "hsl(var(--foreground))" }}>Your poem library awaits</p>
+            <p className="text-sm mb-0" style={{ color: "hsl(var(--muted-foreground))" }}>
+              Subscribe to save poems and track all your revision versions.
+            </p>
+          </div>
+          <UpgradeCard />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="text-foreground" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
@@ -64,86 +89,41 @@ export default function Collection() {
           border-color: hsl(var(--border));
           color: hsl(var(--foreground));
         }
-        .collection-input::placeholder {
-          color: hsl(var(--muted-foreground) / 0.5);
-        }
-        .collection-input:focus {
-          border-color: hsl(var(--primary) / 0.5);
-          outline: none;
-        }
+        .collection-input::placeholder { color: hsl(var(--muted-foreground) / 0.5); }
+        .collection-input:focus { border-color: hsl(var(--primary) / 0.5); outline: none; }
         .collection-select {
           background-color: hsl(var(--card));
           border-color: hsl(var(--border));
           color: hsl(var(--muted-foreground));
         }
-        .collection-select:focus {
-          outline: none;
-          border-color: hsl(var(--primary) / 0.5);
-        }
-        .collection-empty-text {
-          color: hsl(var(--muted-foreground));
-        }
-        .collection-empty-button {
-          color: hsl(var(--primary));
-          transition: all 0.3s ease;
-        }
-        .collection-empty-button:hover {
-          opacity: 0.8;
-        }
-        .collection-card {
-          border-color: hsl(var(--border));
-          background-color: hsl(var(--card) / 0.5);
-        }
-        .collection-card-button:hover {
-          background-color: hsl(var(--primary) / 0.05);
-        }
-        .collection-version-title {
-          color: hsl(var(--foreground));
-        }
-        .collection-version-meta {
-          color: hsl(var(--muted-foreground));
-        }
-        .collection-expanded-divider {
-          border-color: hsl(var(--border) / 0.5);
-        }
-        .collection-chart-label {
-          color: hsl(var(--muted-foreground));
-        }
-        .collection-version-row {
-          border-color: hsl(var(--border));
-        }
-        .collection-version-row:hover {
-          border-color: hsl(var(--primary) / 0.3);
-          background-color: hsl(var(--primary) / 0.03);
-        }
-        .collection-version-text {
-          color: hsl(var(--muted-foreground) / 0.7);
-        }
+        .collection-select:focus { outline: none; border-color: hsl(var(--primary) / 0.5); }
+        .collection-empty-text { color: hsl(var(--muted-foreground)); }
+        .collection-empty-button { color: hsl(var(--primary)); transition: all 0.3s ease; }
+        .collection-empty-button:hover { opacity: 0.8; }
+        .collection-card { border-color: hsl(var(--border)); background-color: hsl(var(--card) / 0.5); }
+        .collection-card-button:hover { background-color: hsl(var(--primary) / 0.05); }
+        .collection-version-title { color: hsl(var(--foreground)); }
+        .collection-version-meta { color: hsl(var(--muted-foreground)); }
+        .collection-expanded-divider { border-color: hsl(var(--border) / 0.5); }
+        .collection-chart-label { color: hsl(var(--muted-foreground)); }
+        .collection-version-row { border-color: hsl(var(--border)); }
+        .collection-version-row:hover { border-color: hsl(var(--primary) / 0.3); background-color: hsl(var(--primary) / 0.03); }
+        .collection-version-text { color: hsl(var(--muted-foreground) / 0.7); }
         .collection-revision-button {
           background-color: hsl(var(--primary));
           color: hsl(var(--primary-foreground));
           transition: all 0.3s ease;
         }
-        .collection-revision-button:hover {
-          filter: brightness(1.1);
-          box-shadow: 0 0 16px hsl(var(--primary) / 0.4);
-        }
-        .collection-search-icon {
-          color: hsl(var(--muted-foreground) / 0.5);
-        }
-        .collection-flag-dot {
-          background-color: currentColor;
-        }
+        .collection-revision-button:hover { filter: brightness(1.1); box-shadow: 0 0 16px hsl(var(--primary) / 0.4); }
+        .collection-search-icon { color: hsl(var(--muted-foreground) / 0.5); }
       `}</style>
 
       <div className="max-w-2xl mx-auto px-4 py-4">
-        {/* Heading */}
         <div className="flex items-center gap-2 mb-4">
           <BookOpen className="w-5 h-5" style={{ color: "hsl(var(--primary))" }} />
           <h1 className="text-xl font-bold text-foreground">Saved Poems</h1>
         </div>
 
-        {/* Search + sort */}
         <div className="flex gap-3 mb-4">
           <div className="relative flex-1">
             <Search className="collection-search-icon absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" />
@@ -197,7 +177,7 @@ export default function Collection() {
                     </div>
                     <div className="flex items-center gap-3">
                       <ScoreBadge score={latest.poem_score} />
-                      <ChevronRight className={`w-4 h-4 transition-transform`} style={{ color: "hsl(var(--muted-foreground) / 0.5)", transform: isExpanded ? "rotate(90deg)" : "rotate(0)" }} />
+                      <ChevronRight className="w-4 h-4 transition-transform" style={{ color: "hsl(var(--muted-foreground) / 0.5)", transform: isExpanded ? "rotate(90deg)" : "rotate(0)" }} />
                     </div>
                   </button>
 
@@ -208,19 +188,8 @@ export default function Collection() {
                           <div className="collection-chart-label text-xs uppercase tracking-widest mb-2">Score Timeline</div>
                           <ResponsiveContainer width="100%" height={70}>
                             <LineChart data={chartData}>
-                              <XAxis 
-                                dataKey="v" 
-                                tick={{ fill: "hsl(var(--muted-foreground) / 0.5)", fontSize: 10 }} 
-                                axisLine={false} 
-                                tickLine={false} 
-                              />
-                              <YAxis 
-                                domain={[1, 10]} 
-                                tick={{ fill: "hsl(var(--muted-foreground) / 0.5)", fontSize: 10 }} 
-                                axisLine={false} 
-                                tickLine={false} 
-                                width={18} 
-                              />
+                              <XAxis dataKey="v" tick={{ fill: "hsl(var(--muted-foreground) / 0.5)", fontSize: 10 }} axisLine={false} tickLine={false} />
+                              <YAxis domain={[1, 10]} tick={{ fill: "hsl(var(--muted-foreground) / 0.5)", fontSize: 10 }} axisLine={false} tickLine={false} width={18} />
                               <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", color: "hsl(var(--foreground))", fontSize: 11 }} cursor={false} />
                               <Line type="monotone" dataKey="score" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ fill: "hsl(var(--primary))", r: 3 }} />
                             </LineChart>
