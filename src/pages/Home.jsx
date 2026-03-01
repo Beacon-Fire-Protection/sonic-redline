@@ -4,7 +4,7 @@ import { createPageUrl } from "@/utils";
 export default function Home() {
   return (
     <div
-      className="min-h-dvh text-foreground px-6 pt-20 pb-0"
+      className="min-h-20 text-foreground px-6 pt-20 pb-0"
       style={{
         background:
           "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)",
