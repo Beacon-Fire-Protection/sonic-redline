@@ -132,7 +132,7 @@ export default function Analysis() {
   const visibleTabs = record.is_revision ? TABS : TABS.filter(t => t !== "Comparison");
 
   return (
-    <div className="min-h-screen text-foreground flex flex-col" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+    <div className="min-h-20 text-foreground flex flex-col" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
       <style>{`
         .analysis-header {
           border-color: hsl(var(--border));
