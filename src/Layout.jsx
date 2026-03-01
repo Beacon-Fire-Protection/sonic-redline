@@ -34,8 +34,10 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div
-      className="flex flex-col h-dvh"
+      className="h-dvh"
       style={{
+        display: "grid",
+        gridTemplateRows: showTabs ? "auto 1fr auto" : "auto 1fr",
         background: `linear-gradient(135deg, ${BG_DARK} 0%, #2d1b4e 100%)`,
         paddingTop: "env(safe-area-inset-top)",
         color: "#f3e8ff",
@@ -103,11 +105,10 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Main scroll area */}
       <main
-        className="flex-1 overflow-y-auto overflow-x-hidden"
+        className="overflow-y-auto overflow-x-hidden"
         style={{
-          paddingBottom: showTabs
-            ? "calc(6rem + env(safe-area-inset-bottom))"
-            : "env(safe-area-inset-bottom)",
+          minHeight: 0,
+          paddingBottom: "env(safe-area-inset-bottom)",
           WebkitOverflowScrolling: "touch",
         }}
       >
@@ -117,7 +118,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Bottom Tabs */}
       {showTabs && (
         <nav
-          className="fixed bottom-0 left-0 right-0 border-t flex select-none z-50"
+          className="sticky bottom-0 border-t flex select-none"
           style={{
             paddingBottom: "calc(env(safe-area-inset-bottom) + 0.5rem)",
             background:
