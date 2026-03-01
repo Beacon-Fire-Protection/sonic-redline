@@ -3,7 +3,7 @@ import { createClientFromRequest } from "npm:@base44/sdk@0.8.6";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY"));
 // Monthly subscription price — $0.99/month
-const PRICE_ID = "price_1T5c6YBasBDL6eaX1Q4PP4Nj";
+const PRICE_ID = "price_1T5dkHBdoLgIhSYzx5OAoOlM";
 
 Deno.serve(async (req) => {
   try {
