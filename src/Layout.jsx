@@ -116,6 +116,8 @@ export default function Layout({ children, currentPageName }) {
         {children}
       </main>
 
+      <PoetryChat />
+
       {/* Bottom Tabs */}
       {showTabs && (
         <nav
