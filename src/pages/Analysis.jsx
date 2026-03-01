@@ -249,7 +249,7 @@ export default function Analysis() {
       </div>
 
       {/* Tab content */}
-      <div className="flex-1 max-h-30 overflow-y-auto pb-40">
+      <div className="flex-1 overflow-y-auto pb-40">
         <div className="max-w-2xl mx-auto px-4 py-6">
 
           {/* Tab 0: Poem */}
