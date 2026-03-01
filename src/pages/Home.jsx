@@ -1,22 +1,22 @@
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { useSubscription } from "@/components/useSubscription";
+import UpgradeCard from "@/components/UpgradeCard";
 
 export default function Home() {
+  const { subscribed, loading } = useSubscription();
+
   return (
     <div
-      className="min-h-20 text-foreground px-6 pt-20 pb-0"
+      className="min-h-20 text-foreground px-6 pt-12 pb-0"
       style={{
         background:
           "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)",
       }}
     >
       <style>{`
-        .home-tagline {
-          color: hsl(var(--muted-foreground));
-        }
-        .home-button-container {
-          background-color: hsl(var(--card));
-        }
+        .home-tagline { color: hsl(var(--muted-foreground)); }
+        .home-button-container { background-color: hsl(var(--card)); }
         .home-primary-button {
           background-color: hsl(var(--primary));
           color: hsl(var(--primary-foreground));
@@ -39,7 +39,7 @@ export default function Home() {
       `}</style>
 
       <div className="max-w-sm w-full mx-auto text-center">
-        <p className="home-tagline text-sm tracking-[0.2em] uppercase mb-0">
+        <p className="home-tagline text-sm tracking-[0.2em] uppercase mb-4">
           Structure. Sound. Truth.
         </p>
 
@@ -60,6 +60,13 @@ export default function Home() {
             Saved Poems
           </Link>
         </div>
+
+        {/* Upgrade CTA for non-subscribers */}
+        {!loading && !subscribed && (
+          <div className="mt-4">
+            <UpgradeCard />
+          </div>
+        )}
       </div>
     </div>
   );
