@@ -2,10 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { ChevronRight, Loader2, Search, RefreshCw } from "lucide-react";
+import { ChevronRight, Loader2, Search, RefreshCw, BookOpen } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-
-const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
 
 function ScoreBadge({ score }) {
   const bg = score >= 7 ? "#10B981" : score >= 5 ? "#FBBF24" : "#EC4899";
@@ -26,7 +24,7 @@ export default function Collection() {
 
   useEffect(() => {
     base44.entities.PoemAnalysis.list("-created_date", 200).then(data => {
-      setPoems(data);
+      setPoems(data.filter(p => p.is_saved === true));
       setLoading(false);
     });
   }, []);
@@ -53,13 +51,13 @@ export default function Collection() {
   }
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+    <div className="h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
       <Loader2 className="w-6 h-6 animate-spin" style={{ color: "hsl(var(--muted-foreground))" }} />
     </div>
   );
 
   return (
-    <div className="min-h-screen text-foreground" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+    <div className="text-foreground" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
       <style>{`
         .collection-input {
           background-color: hsl(var(--card));
@@ -138,9 +136,15 @@ export default function Collection() {
         }
       `}</style>
 
-      <div className="max-w-2xl mx-auto px-4 py-5">
+      <div className="max-w-2xl mx-auto px-4 py-4">
+        {/* Heading */}
+        <div className="flex items-center gap-2 mb-4">
+          <BookOpen className="w-5 h-5" style={{ color: "hsl(var(--primary))" }} />
+          <h1 className="text-xl font-bold text-foreground">Saved Poems</h1>
+        </div>
+
         {/* Search + sort */}
-        <div className="flex gap-3 mb-5">
+        <div className="flex gap-3 mb-4">
           <div className="relative flex-1">
             <Search className="collection-search-icon absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" />
             <input

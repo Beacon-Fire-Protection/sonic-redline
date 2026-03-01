@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { Loader2 } from "lucide-react";
+import { Loader2, Clipboard } from "lucide-react";
 
 const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
 
@@ -100,6 +100,7 @@ export default function Submit() {
       red_count: redCount,
       yellow_count: yellowCount,
       green_count: greenCount,
+      is_saved: false,
     });
 
     setLoading(false);
@@ -107,12 +108,13 @@ export default function Submit() {
   };
 
   return (
-    <div className="min-h-screen text-foreground px-4 py-10" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+    <div className="text-foreground px-4 py-6" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
       <style>{`
         .submit-input, .submit-textarea {
           background-color: hsl(var(--card) / 0.6);
           border-color: hsl(var(--border));
           color: hsl(var(--foreground));
+          border-radius: 0.75rem;
         }
         .submit-input::placeholder, .submit-textarea::placeholder {
           color: hsl(var(--muted-foreground) / 0.4);
@@ -128,6 +130,7 @@ export default function Submit() {
         .submit-toggle-container {
           background-color: hsl(var(--card) / 0.6);
           border-color: hsl(var(--border));
+          border-radius: 0.75rem;
         }
         .submit-toggle-inactive {
           background-color: hsl(var(--border));
@@ -136,9 +139,10 @@ export default function Submit() {
           background-color: hsl(var(--primary));
         }
         .submit-button-submit {
-          background-color: hsl(var(--primary));
+          background: linear-gradient(135deg, hsl(var(--primary)) 0%, #a855f7 100%);
           color: hsl(var(--primary-foreground));
           transition: all 0.3s ease;
+          border-radius: 0.75rem;
         }
         .submit-button-submit:hover:not(:disabled) {
           filter: brightness(1.15);
@@ -152,15 +156,18 @@ export default function Submit() {
         .submit-error {
           color: #EC4899;
         }
-        .submit-heading {
-          color: hsl(var(--primary));
-        }
       `}</style>
 
       <div className="max-w-2xl mx-auto">
-        <h1 className="submit-heading text-3xl font-bold mb-8 tracking-tight">Analyze a Poem</h1>
+        <div className="flex items-center gap-2 mb-1">
+          <Clipboard className="w-6 h-6" style={{ color: "hsl(var(--primary))" }} />
+          <h1 className="text-2xl font-bold text-foreground">Analyze a Poem</h1>
+        </div>
+        <p className="text-sm mb-6 leading-relaxed" style={{ color: "hsl(var(--muted-foreground))" }}>
+          Paste your poem for a line-by-line structural analysis.
+        </p>
 
-        <div className="space-y-5">
+        <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs uppercase tracking-widest mb-2 block submit-label">Title</label>
@@ -188,7 +195,7 @@ export default function Submit() {
               value={poemText}
               onChange={e => setPoemText(e.target.value)}
               placeholder="Begin here…"
-              rows={14}
+              rows={12}
               className="submit-textarea w-full border px-4 py-4 resize-none leading-relaxed font-mono text-sm transition-colors"
             />
           </div>
@@ -197,12 +204,12 @@ export default function Submit() {
             <span className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>Compare to previous version?</span>
             <button
               onClick={() => setIsRevision(!isRevision)}
-              className="relative w-11 h-6 transition-colors select-none"
+              className="relative w-11 h-6 transition-colors select-none rounded-full"
               style={{ backgroundColor: isRevision ? "hsl(var(--primary))" : "hsl(var(--border))" }}
             >
-              <span 
-                className="absolute top-1 w-4 h-4 bg-white transition-transform shadow" 
-                style={{ transform: isRevision ? "translateX(24px)" : "translateX(4px)" }} 
+              <span
+                className="absolute top-1 w-4 h-4 bg-white transition-transform shadow rounded-full"
+                style={{ transform: isRevision ? "translateX(24px)" : "translateX(4px)" }}
               />
             </button>
           </div>
@@ -214,7 +221,7 @@ export default function Submit() {
                 value={previousText}
                 onChange={e => setPreviousText(e.target.value)}
                 placeholder="Previous version…"
-                rows={10}
+                rows={8}
                 className="submit-textarea w-full border px-4 py-4 resize-none leading-relaxed font-mono text-sm transition-colors"
                 style={{ borderColor: "hsl(var(--primary) / 0.3)" }}
               />
