@@ -55,28 +55,31 @@ export default function RhythmHelper() {
   const style = result ? (PENTAMETER_STYLES[result.meter] || PENTAMETER_STYLES.iambic) : null;
 
   return (
-    <div className="min-h-screen text-white px-4 py-8" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+    <div className="text-white px-4 py-6" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
       <style>{`
         .rhythm-input {
           background-color: hsl(var(--input));
           border-color: hsl(var(--border));
           color: hsl(var(--foreground));
+          border-radius: 0.75rem;
         }
         .rhythm-input::placeholder {
           color: hsl(var(--muted-foreground));
         }
         .rhythm-input:focus {
-          border-color: hsl(var(--primary) / 0.5);
+          border-color: hsl(var(--primary) / 0.7);
           outline: none;
+          box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
         }
         .rhythm-button {
-          background-color: hsl(var(--primary));
+          background: linear-gradient(135deg, hsl(var(--primary)) 0%, #a855f7 100%);
           color: hsl(var(--primary-foreground));
           transition: all 0.3s ease;
+          border-radius: 0.75rem;
         }
         .rhythm-button:hover:not(:disabled) {
-          filter: brightness(1.1);
-          box-shadow: 0 0 20px hsl(var(--primary) / 0.4);
+          filter: brightness(1.15);
+          box-shadow: 0 0 24px hsl(var(--primary) / 0.5);
         }
         .rhythm-button:disabled {
           opacity: 0.3;
@@ -85,30 +88,27 @@ export default function RhythmHelper() {
         .rhythm-label {
           color: hsl(var(--muted-foreground));
         }
-        .rhythm-result-card {
-          background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.8) 100%);
-          border-color: hsl(var(--border));
-        }
         .rhythm-text-secondary {
           color: hsl(var(--muted-foreground));
         }
         .rhythm-reference {
           background-color: hsl(var(--input));
           border-color: hsl(var(--border));
+          border-radius: 0.75rem;
         }
       `}</style>
 
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-2 mb-1">
-          <Music className="w-6 h-6" style={{ color: "hsl(var(--accent))" }} />
+          <Music className="w-6 h-6" style={{ color: "#F472B6" }} />
           <h1 className="text-2xl font-bold text-foreground">Rhythm Analyzer</h1>
         </div>
-        <p className="rhythm-text-secondary text-sm mb-8 leading-relaxed">
+        <p className="rhythm-text-secondary text-sm mb-6 leading-relaxed">
           Paste a line to detect its metrical pattern and syllable stresses.
         </p>
 
         {/* Input */}
-        <div className="flex gap-3 mb-8">
+        <div className="flex gap-3 mb-6">
           <input
             value={sentence}
             onChange={e => setSentence(e.target.value)}
@@ -119,7 +119,7 @@ export default function RhythmHelper() {
           <button
             onClick={analyze}
             disabled={loading || !sentence.trim()}
-            className="rhythm-button px-5 py-3 rounded-xl text-sm font-medium select-none"
+            className="rhythm-button px-5 py-3 text-sm font-medium select-none"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Scan"}
           </button>
@@ -127,7 +127,7 @@ export default function RhythmHelper() {
 
         {/* Result */}
         {result && style && (
-          <div className={`border ${style.border} bg-gradient-to-br ${style.bg} p-6 space-y-6`}>
+          <div className={`border ${style.border} bg-gradient-to-br ${style.bg} p-6 space-y-5 rounded-xl`}>
             {/* Meter + confidence */}
             <div className="flex items-center justify-between">
               <div>
@@ -161,14 +161,14 @@ export default function RhythmHelper() {
             {result.explanation && (
               <div>
                 <div className="text-xs uppercase tracking-widest rhythm-label mb-2 select-none">Analysis</div>
-                <p className="text-white/55 text-sm leading-relaxed">{result.explanation}</p>
+                <p className="text-white/70 text-sm leading-relaxed">{result.explanation}</p>
               </div>
             )}
           </div>
         )}
 
         {/* Reference */}
-        <div className="mt-10 p-4 rhythm-reference border">
+        <div className="mt-6 p-4 rhythm-reference border">
           <div className="text-xs uppercase tracking-widest rhythm-label mb-3 select-none">Quick Reference</div>
           <div className="space-y-1.5">
             {[
@@ -180,7 +180,7 @@ export default function RhythmHelper() {
             ].map(([name, pat]) => (
               <div key={name} className="flex justify-between text-xs">
                 <span className="rhythm-text-secondary">{name}</span>
-                <span className="text-white/20 font-mono">{pat}</span>
+                <span className="text-white/40 font-mono">{pat}</span>
               </div>
             ))}
           </div>

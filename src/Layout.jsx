@@ -74,7 +74,7 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Header */}
       <header
-        className="flex items-center justify-between border-b h-44 px-4 flex-shrink-0 header-shimmer"
+        className="flex items-center justify-between border-b h-14 px-4 flex-shrink-0 header-shimmer"
         style={{
           borderColor: `${ACCENT_AQUA}40`,
           background:
@@ -85,7 +85,7 @@ export default function Layout({ children, currentPageName }) {
           <img
             src={LOGO}
             alt="Sonic Redline"
-            className="h-60 w-auto object-contain drop-shadow-lg"
+            className="h-10 w-auto object-contain drop-shadow-lg"
             style={{
               filter: "drop-shadow(0 0 20px rgba(255, 51, 153, 0.3))",
             }}

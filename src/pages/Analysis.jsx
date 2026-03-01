@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
-import { Loader2, Download, RefreshCw, Plus, Bookmark } from "lucide-react";
+import { Loader2, Download, RefreshCw, Plus, Bookmark, BookmarkCheck } from "lucide-react";
 
 const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
 
@@ -53,16 +53,42 @@ export default function Analysis() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
   const [savingPoem, setSavingPoem] = useState(false);
+  const [isEntitled, setIsEntitled] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
+    const savedFlag = params.get("saved");
     if (!id) { navigate(createPageUrl("Home")); return; }
-    base44.entities.PoemAnalysis.filter({ id }).then(results => {
+
+    Promise.all([
+      base44.entities.PoemAnalysis.filter({ id }),
+      base44.entities.PoemAnalysis.list("-created_date", 200),
+    ]).then(async ([results, allPoems]) => {
       const r = results[0];
       if (!r) { navigate(createPageUrl("Home")); return; }
-      setRecord(r);
+
+      // Check entitlement: user has already paid if any poem is saved
+      const entitled = allPoems.some(p => p.is_saved === true);
+      setIsEntitled(entitled);
       setAnalysis(JSON.parse(r.analysis_raw));
+
+      // Handle return from Stripe checkout: mark poem as saved
+      if (savedFlag === "1" && r.is_saved !== true) {
+        try {
+          await base44.entities.PoemAnalysis.update(r.id, { is_saved: true });
+          setRecord({ ...r, is_saved: true });
+          setIsEntitled(true);
+          // Clean up the URL so refreshing doesn't re-trigger
+          const url = new URL(window.location.href);
+          url.searchParams.delete("saved");
+          window.history.replaceState({}, "", url.toString());
+        } catch {
+          setRecord(r);
+        }
+      } else {
+        setRecord(r);
+      }
       setLoading(false);
     });
   }, []);
@@ -75,11 +101,30 @@ export default function Analysis() {
   };
 
   const handleSave = async () => {
-    if (window.self !== window.top) {
-      alert("Checkout only works from the published app. Please open the app in a new tab.");
+    if (record.is_saved === true) return; // already saved, nothing to do
+
+    setSavingPoem(true);
+
+    // If user is already entitled (has a previous saved poem), save directly
+    if (isEntitled) {
+      try {
+        await base44.entities.PoemAnalysis.update(record.id, { is_saved: true });
+        setRecord(prev => ({ ...prev, is_saved: true }));
+      } catch (err) {
+        console.error(err);
+        alert("Failed to save. Please try again.");
+      } finally {
+        setSavingPoem(false);
+      }
       return;
     }
-    setSavingPoem(true);
+
+    // Not yet entitled — go to Stripe checkout
+    if (window.self !== window.top) {
+      alert("Checkout only works from the published app. Please open the app in a new tab.");
+      setSavingPoem(false);
+      return;
+    }
     const currentUrl = window.location.href;
     const successUrl = currentUrl + (currentUrl.includes("?") ? "&saved=1" : "?saved=1");
     const cancelUrl = currentUrl;
@@ -123,7 +168,7 @@ export default function Analysis() {
   };
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
+    <div className="h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
       <Loader2 className="w-6 h-6 animate-spin" style={{ color: "hsl(var(--muted-foreground))" }} />
     </div>
   );
@@ -335,11 +380,11 @@ export default function Analysis() {
           </button>
           <button
             onClick={handleSave}
-            disabled={savingPoem}
+            disabled={savingPoem || record.is_saved === true}
             className="analysis-btn-primary py-3 text-xs font-bold tracking-[0.1em] uppercase flex items-center justify-center gap-2 rounded-lg disabled:opacity-50"
           >
-            {savingPoem ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bookmark className="w-3.5 h-3.5" />}
-            Save
+            {savingPoem ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : record.is_saved === true ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
+            {record.is_saved === true ? "Saved" : "Save"}
           </button>
           <button
             onClick={handleExport}
