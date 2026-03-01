@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { Loader2, Download, RefreshCw, Plus, Bookmark, BookmarkCheck } from "lucide-react";
+import { useSubscription } from "@/components/useSubscription";
+import UpgradeCard from "@/components/UpgradeCard";
 
-const LOGO = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69a2266141888b3ccda1983d/a97572646_sonic.png";
-
-// Unicorn LEGO flag colors - vibrant and cohesive!
+// Unicorn LEGO flag colors
 const FLAG = {
   RED:    { dot: "bg-[#EC4899]", text: "text-[#EC4899]", border: "border-[#EC4899]/25", bg: "bg-[#EC4899]/8" },
   YELLOW: { dot: "bg-[#FBBF24]", text: "text-[#FBBF24]", border: "border-[#FBBF24]/25", bg: "bg-[#FBBF24]/8" },
@@ -53,42 +53,19 @@ export default function Analysis() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
   const [savingPoem, setSavingPoem] = useState(false);
-  const [isEntitled, setIsEntitled] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+  const { subscribed, loading: subLoading } = useSubscription();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
-    const savedFlag = params.get("saved");
     if (!id) { navigate(createPageUrl("Home")); return; }
 
-    Promise.all([
-      base44.entities.PoemAnalysis.filter({ id }),
-      base44.entities.PoemAnalysis.list("-created_date", 200),
-    ]).then(async ([results, allPoems]) => {
+    base44.entities.PoemAnalysis.filter({ id }).then(async (results) => {
       const r = results[0];
       if (!r) { navigate(createPageUrl("Home")); return; }
-
-      // Check entitlement: user has already paid if any poem is saved
-      const entitled = allPoems.some(p => p.is_saved === true);
-      setIsEntitled(entitled);
       setAnalysis(JSON.parse(r.analysis_raw));
-
-      // Handle return from Stripe checkout: mark poem as saved
-      if (savedFlag === "1" && r.is_saved !== true) {
-        try {
-          await base44.entities.PoemAnalysis.update(r.id, { is_saved: true });
-          setRecord({ ...r, is_saved: true });
-          setIsEntitled(true);
-          // Clean up the URL so refreshing doesn't re-trigger
-          const url = new URL(window.location.href);
-          url.searchParams.delete("saved");
-          window.history.replaceState({}, "", url.toString());
-        } catch {
-          setRecord(r);
-        }
-      } else {
-        setRecord(r);
-      }
+      setRecord(r);
       setLoading(false);
     });
   }, []);
@@ -101,45 +78,21 @@ export default function Analysis() {
   };
 
   const handleSave = async () => {
-    if (record.is_saved === true) return; // already saved, nothing to do
+    if (record.is_saved === true) return;
+    setSaveError(null);
+
+    if (!subscribed) {
+      // Show upgrade card — handled in UI below
+      return;
+    }
 
     setSavingPoem(true);
-
-    // If user is already entitled (has a previous saved poem), save directly
-    if (isEntitled) {
-      try {
-        await base44.entities.PoemAnalysis.update(record.id, { is_saved: true });
-        setRecord(prev => ({ ...prev, is_saved: true }));
-      } catch (err) {
-        console.error(err);
-        alert("Failed to save. Please try again.");
-      } finally {
-        setSavingPoem(false);
-      }
-      return;
-    }
-
-    // Not yet entitled — go to Stripe checkout
-    if (window.self !== window.top) {
-      alert("Checkout only works from the published app. Please open the app in a new tab.");
-      setSavingPoem(false);
-      return;
-    }
-    const currentUrl = window.location.href;
-    const successUrl = currentUrl + (currentUrl.includes("?") ? "&saved=1" : "?saved=1");
-    const cancelUrl = currentUrl;
     try {
-      const response = await base44.functions.invoke("createCheckout", {
-        poem_analysis_id: record.id,
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-      });
-      if (response.data?.url) {
-        window.location.href = response.data.url;
-      }
+      await base44.entities.PoemAnalysis.update(record.id, { is_saved: true });
+      setRecord(prev => ({ ...prev, is_saved: true }));
     } catch (err) {
-      console.error(err);
-      alert("Failed to start checkout. Please try again.");
+      console.error("Save error:", err);
+      setSaveError("Failed to save. Please try again.");
     } finally {
       setSavingPoem(false);
     }
@@ -167,7 +120,7 @@ export default function Analysis() {
     URL.revokeObjectURL(url);
   };
 
-  if (loading) return (
+  if (loading || subLoading) return (
     <div className="h-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
       <Loader2 className="w-6 h-6 animate-spin" style={{ color: "hsl(var(--muted-foreground))" }} />
     </div>
@@ -179,64 +132,20 @@ export default function Analysis() {
   return (
     <div className="min-h-20 text-foreground flex flex-col" style={{ background: "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%)" }}>
       <style>{`
-        .analysis-header {
-          border-color: hsl(var(--border));
-          background-color: hsl(var(--background) / 0.5);
-        }
-        .analysis-flag-item {
-          color: hsl(var(--muted-foreground));
-        }
-        .analysis-tab {
-          border-color: hsl(var(--border));
-        }
-        .analysis-tab-active {
-          border-color: hsl(var(--primary));
-          color: hsl(var(--foreground));
-        }
-        .analysis-tab-inactive {
-          color: hsl(var(--muted-foreground));
-          border-color: transparent;
-        }
-        .analysis-tab-inactive:hover {
-          color: hsl(var(--foreground) / 0.7);
-        }
-        .analysis-card {
-          border-color: hsl(var(--border));
-          background-color: hsl(var(--card));
-        }
-        .analysis-label {
-          color: hsl(var(--muted-foreground));
-        }
-        .analysis-content {
-          color: hsl(var(--foreground) / 0.65);
-        }
-        .analysis-footer {
-          background-color: hsl(var(--background));
-          border-color: hsl(var(--border));
-        }
-        .analysis-btn-primary {
-          background-color: hsl(var(--primary));
-          color: hsl(var(--primary-foreground));
-          transition: all 0.3s ease;
-        }
-        .analysis-btn-primary:hover:not(:disabled) {
-          filter: brightness(1.1);
-          box-shadow: 0 0 16px hsl(var(--primary) / 0.4);
-        }
-        .analysis-btn-secondary {
-          border-color: hsl(var(--border));
-          color: hsl(var(--muted-foreground));
-          transition: all 0.3s ease;
-        }
-        .analysis-btn-secondary:hover {
-          color: hsl(var(--foreground));
-          border-color: hsl(var(--primary) / 0.5);
-          background-color: hsl(var(--primary) / 0.05);
-        }
-        .analysis-comparison-highlight {
-          border-color: hsl(var(--primary) / 0.3);
-          background-color: hsl(var(--primary) / 0.08);
-        }
+        .analysis-header { border-color: hsl(var(--border)); background-color: hsl(var(--background) / 0.5); }
+        .analysis-tab { border-color: hsl(var(--border)); }
+        .analysis-tab-active { border-color: hsl(var(--primary)); color: hsl(var(--foreground)); }
+        .analysis-tab-inactive { color: hsl(var(--muted-foreground)); border-color: transparent; }
+        .analysis-tab-inactive:hover { color: hsl(var(--foreground) / 0.7); }
+        .analysis-card { border-color: hsl(var(--border)); background-color: hsl(var(--card)); }
+        .analysis-label { color: hsl(var(--muted-foreground)); }
+        .analysis-content { color: hsl(var(--foreground) / 0.65); }
+        .analysis-footer { background-color: hsl(var(--background)); border-color: hsl(var(--border)); }
+        .analysis-btn-primary { background-color: hsl(var(--primary)); color: hsl(var(--primary-foreground)); transition: all 0.3s ease; }
+        .analysis-btn-primary:hover:not(:disabled) { filter: brightness(1.1); box-shadow: 0 0 16px hsl(var(--primary) / 0.4); }
+        .analysis-btn-secondary { border-color: hsl(var(--border)); color: hsl(var(--muted-foreground)); transition: all 0.3s ease; }
+        .analysis-btn-secondary:hover { color: hsl(var(--foreground)); border-color: hsl(var(--primary) / 0.5); background-color: hsl(var(--primary) / 0.05); }
+        .analysis-comparison-highlight { border-color: hsl(var(--primary) / 0.3); background-color: hsl(var(--primary) / 0.08); }
       `}</style>
 
       {/* Header */}
@@ -274,16 +183,14 @@ export default function Analysis() {
       {/* Tabs */}
       <div className="analysis-tab border-b overflow-x-auto">
         <div className="flex max-w-2xl mx-auto px-4">
-          {visibleTabs.map((tab, i) => {
+          {visibleTabs.map((tab) => {
             const realIdx = TABS.indexOf(tab);
             return (
               <button
                 key={tab}
                 onClick={() => setActiveTab(realIdx)}
                 className={`py-3 px-4 text-xs font-bold tracking-[0.15em] uppercase whitespace-nowrap border-b-2 transition-colors ${
-                  activeTab === realIdx
-                    ? "analysis-tab-active"
-                    : "analysis-tab-inactive"
+                  activeTab === realIdx ? "analysis-tab-active" : "analysis-tab-inactive"
                 }`}
               >
                 {tab}
@@ -296,6 +203,13 @@ export default function Analysis() {
       {/* Tab content */}
       <div className="flex-1 overflow-y-auto pb-40">
         <div className="max-w-2xl mx-auto px-4 py-6">
+
+          {/* Upgrade banner for non-subscribers (only shown if not saved yet) */}
+          {!subscribed && record.is_saved !== true && (
+            <div className="mb-6">
+              <UpgradeCard />
+            </div>
+          )}
 
           {/* Tab 0: Poem */}
           {activeTab === 0 && (
@@ -312,7 +226,7 @@ export default function Analysis() {
               {analysis.lines?.map((line) => {
                 const s = FLAG[line.flag] || FLAG.GREEN;
                 return (
-                  <div key={line.number} className={`analysis-card border p-4`}>
+                  <div key={line.number} className="analysis-card border p-4">
                     <div className="flex items-center gap-3 mb-3">
                       <span className="text-xs font-mono analysis-label">{line.number}</span>
                       <span className={`w-2 h-2 ${s.dot}`} />
@@ -369,7 +283,7 @@ export default function Analysis() {
       </div>
 
       {/* Bottom actions */}
-      <div className="analysis-footer fixed bottom-0 left-0 right-0 border-t p-4 pb-safe">
+      <div className="analysis-footer fixed bottom-0 left-0 right-0 border-t p-4">
         <div className="max-w-2xl mx-auto grid grid-cols-4 gap-3">
           <button
             onClick={handleRevision}
@@ -380,7 +294,8 @@ export default function Analysis() {
           </button>
           <button
             onClick={handleSave}
-            disabled={savingPoem || record.is_saved === true}
+            disabled={savingPoem || record.is_saved === true || !subscribed}
+            title={!subscribed ? "Subscribe to save poems" : undefined}
             className="analysis-btn-primary py-3 text-xs font-bold tracking-[0.1em] uppercase flex items-center justify-center gap-2 rounded-lg disabled:opacity-50"
           >
             {savingPoem ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : record.is_saved === true ? <BookmarkCheck className="w-3.5 h-3.5" /> : <Bookmark className="w-3.5 h-3.5" />}
@@ -401,6 +316,7 @@ export default function Analysis() {
             New
           </button>
         </div>
+        {saveError && <p className="text-center text-xs mt-2" style={{ color: "#EC4899" }}>{saveError}</p>}
       </div>
     </div>
   );
